@@ -762,9 +762,16 @@ class ShapePlacer:
         valid_target_coords_absolute = []
 
         # --- Validate target coordinates ---
+        # Note: Shape relative coords use RLE convention (Y down), but grid uses Y up
+        # So we need to invert the Y-axis when placing
         for rel_coord in projected_relative_coords:
             if len(rel_coord) != len(origin): continue
-            abs_coord = tuple(o + r for o, r in zip(origin, rel_coord))
+            # For 2D: invert Y-axis (shapes have Y down, grid has Y up)
+            if len(rel_coord) == 2:
+                abs_coord = (origin[0] + rel_coord[0], origin[1] - rel_coord[1])
+            else:
+                # For 3D or other dimensions, use direct addition (might need adjustment for 3D later)
+                abs_coord = tuple(o + r for o, r in zip(origin, rel_coord))
             if self.grid.is_valid_coord(abs_coord):
                 valid_target_coords_absolute.append(abs_coord)
                 rel_to_abs_map[rel_coord] = abs_coord
