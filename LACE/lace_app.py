@@ -22191,6 +22191,7 @@ class SimulationGUI(Observer, Observable):
             self._recording_video: bool = False  # Whether currently recording video
             self._video_frames: List[np.ndarray] = []  # Frames for video recording
             self._video_filename: Optional[str] = None  # Current video filename
+            self._video_metadata: Dict[str, Any] = {}  # Metadata for current video recording
             self.paused = False
             self._user_interaction_active = False
             self._stopped = True
@@ -34340,8 +34341,10 @@ class SimulationGUI(Observer, Observable):
             
             # Generate filename with rule name and timestamp
             rule_name = self.controller.rule.name if self.controller and self.controller.rule else "Unknown"
-            # Clean rule name for filename
+            # Clean and truncate rule name for filename (max 80 chars)
             rule_name_clean = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in rule_name)
+            if len(rule_name_clean) > 80:
+                rule_name_clean = rule_name_clean[:77] + "..."
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{rule_name_clean}_{timestamp}.png"
             filepath = os.path.join(captures_dir, filename)
@@ -34349,7 +34352,21 @@ class SimulationGUI(Observer, Observable):
             # Save the figure at high resolution, cropped to grid content
             self.fig.savefig(filepath, dpi=150, bbox_inches='tight', pad_inches=0, facecolor=self.fig.get_facecolor())
             
+            # Save metadata as JSON sidecar file
+            metadata = {
+                "rule_name": rule_name,
+                "rule_category": self.controller.rule.__class__.__name__ if self.controller and self.controller.rule else "Unknown",
+                "generation": self.generation,
+                "timestamp": timestamp,
+                "grid_dimensions": list(self.grid.dimensions) if self.grid else [],
+                "neighborhood_type": self.grid.neighborhood_type.name if self.grid else "Unknown"
+            }
+            metadata_path = filepath.replace('.png', '_metadata.json')
+            with open(metadata_path, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            
             logger.info(f"Captured still image: {filepath}")
+            logger.debug(f"Saved metadata: {metadata_path}")
             
             # Update status
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
@@ -34373,9 +34390,22 @@ class SimulationGUI(Observer, Observable):
             
             # Generate filename with rule name and timestamp
             rule_name = self.controller.rule.name if self.controller and self.controller.rule else "Unknown"
+            # Clean and truncate rule name for filename (max 80 chars)
             rule_name_clean = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in rule_name)
+            if len(rule_name_clean) > 80:
+                rule_name_clean = rule_name_clean[:77] + "..."
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             self._video_filename = f"{rule_name_clean}_{timestamp}.mp4"
+            
+            # Store metadata for later (when video is saved)
+            self._video_metadata = {
+                "rule_name": rule_name,
+                "rule_category": self.controller.rule.__class__.__name__ if self.controller and self.controller.rule else "Unknown",
+                "start_generation": self.generation,
+                "start_timestamp": timestamp,
+                "grid_dimensions": list(self.grid.dimensions) if self.grid else [],
+                "neighborhood_type": self.grid.neighborhood_type.name if self.grid else "Unknown"
+            }
             
             # Initialize video recording
             self._recording_video = True
@@ -34417,6 +34447,8 @@ class SimulationGUI(Observer, Observable):
         # Copy frame data so we can clear the attribute immediately
         frames_to_save = self._video_frames[:]
         video_filename = self._video_filename
+        video_metadata = self._video_metadata.copy() if hasattr(self, '_video_metadata') else {}
+        end_generation = self.generation
         
         # Clear the frames list immediately
         self._video_frames = []
@@ -34434,6 +34466,11 @@ class SimulationGUI(Observer, Observable):
             try:
                 captures_dir = os.path.join(BASE_PATH, "Captures")
                 filepath = os.path.join(captures_dir, video_filename)
+                
+                # Add end generation and frame count to metadata
+                video_metadata['end_generation'] = end_generation
+                video_metadata['frame_count'] = len(frames_to_save)
+                video_metadata['duration_seconds'] = len(frames_to_save) / 10.0  # 10 fps
                 
                 # Save frames as video using matplotlib animation
                 from matplotlib.animation import FuncAnimation, FFMpegWriter
@@ -34456,6 +34493,12 @@ class SimulationGUI(Observer, Observable):
                     anim.save(filepath, writer=writer)
                     logger.info(f"Saved video: {filepath}")
                     
+                    # Save metadata JSON
+                    metadata_path = filepath.replace('.mp4', '_metadata.json')
+                    with open(metadata_path, 'w') as f:
+                        json.dump(video_metadata, f, indent=2)
+                    logger.debug(f"Saved video metadata: {metadata_path}")
+                    
                     # Update status on main thread
                     self.root.after(0, lambda: self._video_save_complete(video_filename, None))
                             
@@ -34468,6 +34511,12 @@ class SimulationGUI(Observer, Observable):
                         frame_path = os.path.join(frames_dir, f"frame_{i:04d}.png")
                         plt.imsave(frame_path, frame)
                     logger.info(f"Saved {len(frames_to_save)} frames to: {frames_dir}")
+                    
+                    # Save metadata JSON even for frame fallback
+                    metadata_path = os.path.join(frames_dir, 'metadata.json')
+                    with open(metadata_path, 'w') as f:
+                        json.dump(video_metadata, f, indent=2)
+                    logger.debug(f"Saved video metadata: {metadata_path}")
                     
                     # Update status on main thread
                     self.root.after(0, lambda: self._video_save_complete(video_filename, frames_dir))
@@ -34567,15 +34616,14 @@ class SimulationGUI(Observer, Observable):
             buf = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)  # type: ignore
             buf = buf.reshape((height, width, 4))
             
-            # Get axes bounding box in pixels to crop to just the grid content
-            bbox = self.ax.get_window_extent().transformed(self.fig.dpi_scale_trans.inverted())
-            # Convert to pixel coordinates
-            left = int(bbox.x0 * self.fig.dpi)
-            bottom = int(bbox.y0 * self.fig.dpi)
-            right = int(bbox.x1 * self.fig.dpi)
-            top = int(bbox.y1 * self.fig.dpi)
+            # Get axes bounding box in pixel coordinates (already in pixels from renderer)
+            bbox = self.ax.get_window_extent()
+            left = int(bbox.x0)
+            bottom = int(bbox.y0)
+            right = int(bbox.x1)
+            top = int(bbox.y1)
             
-            # Crop to axes area (flip y-axis because image origin is top-left)
+            # Crop to axes area (flip y-axis because image origin is top-left, matplotlib is bottom-left)
             frame_cropped = buf[height - top:height - bottom, left:right]
             
             # Convert RGBA to RGB
