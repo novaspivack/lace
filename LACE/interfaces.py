@@ -1126,7 +1126,8 @@ class CoordinateSystem:
             return (j * self.scale_factor, i * self.scale_factor)
         
     def display_to_grid(self, display_coords):
-        """Convert display coordinates to grid coordinates (approximate)."""
+        """Convert display coordinates to grid coordinates (approximate).
+        NOTE: Accounts for inverted y-axis in 2D (grid i=0 at top of display)."""
         # logger.debug(f"display_to_grid called with display_coords: {display_coords}, scale_factor: {self.scale_factor}")
         
         if self.dimension_type == Dimension.THREE_D:
@@ -1146,13 +1147,16 @@ class CoordinateSystem:
             assert len(display_coords) == 2, "2D display requires 2 coordinates"
             x, y = display_coords
             
-            # For 2D, we use (y, x) for (i, j) in grid
-            # CRITICAL FIX: Divide by scale_factor to convert from display to grid
-            i = y / self.scale_factor
+            # For 2D with inverted y-axis (grid i=0 at top):
+            # matplotlib y-axis is inverted, so high y_data appears at top
+            # Grid i=0 is at top, so high y_data should map to LOW i values
+            # Flip the y coordinate: i = (max_y - y) / scale_factor
+            max_i = self.grid_dimensions[0] - 1
+            i = max_i - (y / self.scale_factor)
             j = x / self.scale_factor
             
             grid_coords = (i, j)
-            # logger.debug(f"display_to_grid: 2D grid_coords = {grid_coords}")
+            # logger.debug(f"display_to_grid: 2D grid_coords = {grid_coords} (y flipped)")
             return grid_coords
         
     def index_to_display(self, idx, grid_dimensions=None):
