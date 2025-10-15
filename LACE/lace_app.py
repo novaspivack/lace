@@ -34607,29 +34607,25 @@ class SimulationGUI(Observer, Observable):
             return
             
         try:
-            # Force canvas draw to ensure latest content
-            self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
+            # Use savefig with tight cropping (same as still image capture which works correctly)
+            from io import BytesIO
+            import PIL.Image
             
-            # Get the RGBA buffer from the canvas renderer (captures exactly what's displayed)
-            width, height = self.fig.canvas.get_width_height()
-            buf = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)  # type: ignore
-            buf = buf.reshape((height, width, 4))
+            buf = BytesIO()
+            self.fig.savefig(buf, format='png', bbox_inches='tight', pad_inches=0, 
+                           facecolor=self.fig.get_facecolor())
+            buf.seek(0)
             
-            # Get axes bounding box in pixel coordinates (already in pixels from renderer)
-            bbox = self.ax.get_window_extent()
-            left = int(bbox.x0)
-            bottom = int(bbox.y0)
-            right = int(bbox.x1)
-            top = int(bbox.y1)
+            # Read back as image array
+            img = PIL.Image.open(buf)
+            frame_array = np.array(img)
             
-            # Crop to axes area (flip y-axis because image origin is top-left, matplotlib is bottom-left)
-            frame_cropped = buf[height - top:height - bottom, left:right]
-            
-            # Convert RGBA to RGB
-            frame_array = frame_cropped[:, :, :3].copy()
+            # Convert RGBA to RGB if necessary
+            if frame_array.shape[2] == 4:
+                frame_array = frame_array[:, :, :3]
             
             self._video_frames.append(frame_array)
+            buf.close()
             
             # Update status with frame count
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
