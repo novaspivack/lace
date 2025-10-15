@@ -31523,6 +31523,21 @@ class SimulationGUI(Observer, Observable):
                 elif current_neighborhood_name == "HEX_PRISM" and self.dimension_type == Dimension.TWO_D: new_neighborhood_type = NeighborhoodType.HEX; self.neighborhood_var.set("HEX"); logger.info(f"Auto-switched neighborhood to HEX for 2D.")
                 self.neighborhood_type = new_neighborhood_type; self.controller.neighborhood_type = self.neighborhood_type
                 self._update_neighborhood_selector()
+                # Recreate matplotlib axes with appropriate projection
+                if hasattr(self, 'fig') and self.fig:
+                    self.fig.clear()
+                    if dimension_type == Dimension.THREE_D:
+                        self.ax = self.fig.add_subplot(111, projection='3d')
+                        self._current_azim = 45
+                        self._current_elev = 30
+                        if isinstance(self.ax, Axes3DType):
+                            self.ax.view_init(elev=self._current_elev, azim=self._current_azim)  # type: ignore
+                            logger.info("Created 3D axes with initial view")
+                    else:
+                        self.ax = self.fig.add_subplot(111)
+                        self.ax.set_aspect('equal', adjustable='box')
+                        logger.info("Created 2D axes")
+                
                 if self.grid is not None and self.coord_system is not None:
                     self.grid.reinitialize(
                         self.dimensions, self.neighborhood_type, self.dimension_type,
