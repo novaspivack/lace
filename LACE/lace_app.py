@@ -21433,6 +21433,23 @@ class ControlPanelUI:
         capture_image_button.pack(fill=tk.X, padx=5, pady=2)
         widgets_dict['capture_image_button'] = capture_image_button
         
+        # Auto Record Run checkbox
+        auto_record_var = tk.BooleanVar(value=False)
+        auto_record_checkbox = tk.Checkbutton(
+            capture_section,
+            text="Auto Record Run",
+            variable=auto_record_var,
+            bg='#404040',
+            fg='white',
+            selectcolor='#606060',
+            activebackground='#404040',
+            activeforeground='white',
+            command=self.gui._on_auto_record_toggle
+        )
+        auto_record_checkbox.pack(fill=tk.X, padx=5, pady=2)
+        widgets_dict['auto_record_checkbox'] = auto_record_checkbox
+        widgets_dict['auto_record_var'] = auto_record_var
+        
         # Video recording buttons frame
         video_frame = tk.Frame(capture_section, bg='#404040')
         video_frame.pack(fill=tk.X, padx=5, pady=2)
@@ -31208,6 +31225,31 @@ class SimulationGUI(Observer, Observable):
             # --- Update Buttons ---
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 self.control_panel_ui.update_button_states()
+            
+            # --- Auto-stop video recording if active ---
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                widgets = self.control_panel_ui.widgets
+                auto_record_var = widgets.get('auto_record_var')
+                if auto_record_var and auto_record_var.get() and self._recording_video:
+                    logger.info(f"{log_prefix}Auto Record Run was enabled - stopping video capture")
+                    self._stop_video_capture()
+            # ---
+            
+            # --- Reset Auto Record checkbox ---
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                widgets = self.control_panel_ui.widgets
+                auto_record_var = widgets.get('auto_record_var')
+                if auto_record_var:
+                    auto_record_var.set(False)
+                    # Re-enable manual buttons
+                    start_button = widgets.get('start_video_button')
+                    stop_button = widgets.get('stop_video_button')
+                    if start_button and not self._recording_video:
+                        start_button.config(state=tk.NORMAL)
+                    if stop_button and not self._recording_video:
+                        stop_button.config(state=tk.DISABLED)
+                    logger.debug(f"{log_prefix}Reset Auto Record Run checkbox to false")
+            # ---
 
             logger.info(f"{log_prefix}Stop sequence fully completed.")
 
@@ -33498,6 +33540,15 @@ class SimulationGUI(Observer, Observable):
                             buffer_label = self.control_panel_ui.widgets.get('buffering_status_label')
                             if isinstance(buffer_label, tk.Label): buffer_label.config(text="")
                     # ---
+                    
+                    # --- Auto-start video recording if enabled ---
+                    if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                        widgets = self.control_panel_ui.widgets
+                        auto_record_var = widgets.get('auto_record_var')
+                        if auto_record_var and auto_record_var.get() and not self._recording_video:
+                            logger.info(f"{log_prefix}Auto Record Run enabled - starting video capture")
+                            self._start_video_capture()
+                    # ---
 
             # Update button states AFTER changing state
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
@@ -34295,8 +34346,8 @@ class SimulationGUI(Observer, Observable):
             filename = f"{rule_name_clean}_{timestamp}.png"
             filepath = os.path.join(captures_dir, filename)
             
-            # Save the figure (canvas only, not toolbar)
-            self.fig.savefig(filepath, dpi=150, bbox_inches='tight', facecolor=self.fig.get_facecolor())
+            # Save the figure at high resolution without tight cropping
+            self.fig.savefig(filepath, dpi=150, facecolor=self.fig.get_facecolor())
             
             logger.info(f"Captured still image: {filepath}")
             
@@ -34354,73 +34405,141 @@ class SimulationGUI(Observer, Observable):
             logger.warning("No video recording in progress")
             return
             
+        # Stop recording immediately to prevent new frames from being added
+        self._recording_video = False
+        
+        if not self._video_frames:
+            logger.warning("No frames captured for video")
+            messagebox.showwarning("No Frames", "No frames were captured.", parent=self.root)
+            self._reset_video_ui()
+            return
+        
+        # Copy frame data so we can clear the attribute immediately
+        frames_to_save = self._video_frames[:]
+        video_filename = self._video_filename
+        
+        # Clear the frames list immediately
+        self._video_frames = []
+        
+        # Update status
+        if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+            status_label = self.control_panel_ui.widgets.get('video_status_label')
+            if status_label:
+                status_label.config(text="Saving video...", fg='#FFFF00')
+        
+        # Save video in background thread to avoid blocking
+        import threading
+        
+        def save_video_background():
+            try:
+                captures_dir = os.path.join(BASE_PATH, "Captures")
+                filepath = os.path.join(captures_dir, video_filename)
+                
+                # Save frames as video using matplotlib animation
+                from matplotlib.animation import FuncAnimation, FFMpegWriter
+                
+                fig_temp = Figure(figsize=self.fig.get_size_inches(), dpi=100)
+                ax_temp = fig_temp.add_subplot(111)
+                ax_temp.axis('off')
+                
+                im = ax_temp.imshow(frames_to_save[0])
+                
+                def update_frame(frame_idx):
+                    im.set_array(frames_to_save[frame_idx])
+                    return [im]
+                
+                anim = FuncAnimation(fig_temp, update_frame, frames=len(frames_to_save), blit=True, interval=100)
+                
+                # Try to save with FFMpeg
+                try:
+                    writer = FFMpegWriter(fps=10, bitrate=1800)
+                    anim.save(filepath, writer=writer)
+                    logger.info(f"Saved video: {filepath}")
+                    
+                    # Update status on main thread
+                    self.root.after(0, lambda: self._video_save_complete(video_filename, None))
+                            
+                except Exception as e:
+                    logger.error(f"FFMpeg not available or error saving: {e}")
+                    # Fallback: save frames as individual images
+                    frames_dir = os.path.join(captures_dir, video_filename.replace('.mp4', '_frames'))
+                    os.makedirs(frames_dir, exist_ok=True)
+                    for i, frame in enumerate(frames_to_save):
+                        frame_path = os.path.join(frames_dir, f"frame_{i:04d}.png")
+                        plt.imsave(frame_path, frame)
+                    logger.info(f"Saved {len(frames_to_save)} frames to: {frames_dir}")
+                    
+                    # Update status on main thread
+                    self.root.after(0, lambda: self._video_save_complete(video_filename, frames_dir))
+                    
+                plt.close(fig_temp)
+                
+            except Exception as e:
+                logger.error(f"Error saving video in background: {e}")
+                logger.error(traceback.format_exc())
+                # Show error on main thread
+                self.root.after(0, lambda: messagebox.showerror("Capture Error", f"Failed to save video: {e}", parent=self.root))
+                self.root.after(0, self._reset_video_ui)
+        
+        # Start background thread
+        thread = threading.Thread(target=save_video_background, daemon=True)
+        thread.start()
+        
+        # Reset UI immediately (except status which will update when save completes)
+        if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+            widgets = self.control_panel_ui.widgets
+            if 'start_video_button' in widgets:
+                widgets['start_video_button'].config(state=tk.NORMAL)
+            if 'stop_video_button' in widgets:
+                widgets['stop_video_button'].config(state=tk.DISABLED)
+    
+    def _video_save_complete(self, filename: str, frames_dir: Optional[str]):
+        """Called when video save completes (on main thread)."""
         try:
-            self._recording_video = False
-            
-            if not self._video_frames:
-                logger.warning("No frames captured for video")
-                messagebox.showwarning("No Frames", "No frames were captured.", parent=self.root)
-                self._reset_video_ui()
-                return
-            
-            captures_dir = os.path.join(BASE_PATH, "Captures")
-            filepath = os.path.join(captures_dir, self._video_filename)
-            
-            # Update status
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 status_label = self.control_panel_ui.widgets.get('video_status_label')
                 if status_label:
-                    status_label.config(text="Saving video...", fg='#FFFF00')
-            
-            # Save frames as video using matplotlib animation
-            from matplotlib.animation import FuncAnimation, FFMpegWriter
-            
-            fig_temp = Figure(figsize=self.fig.get_size_inches(), dpi=100)
-            ax_temp = fig_temp.add_subplot(111)
-            ax_temp.axis('off')
-            
-            im = ax_temp.imshow(self._video_frames[0])
-            
-            def update_frame(frame_idx):
-                im.set_array(self._video_frames[frame_idx])
-                return [im]
-            
-            anim = FuncAnimation(fig_temp, update_frame, frames=len(self._video_frames), blit=True, interval=100)
-            
-            # Try to save with FFMpeg
-            try:
-                writer = FFMpegWriter(fps=10, bitrate=1800)
-                anim.save(filepath, writer=writer)
-                logger.info(f"Saved video: {filepath}")
-                
-                # Update status
-                if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
-                    status_label = self.control_panel_ui.widgets.get('video_status_label')
-                    if status_label:
-                        status_label.config(text=f"Saved: {self._video_filename[:25]}...", fg='#00FF00')
-                        self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00'))
-                        
-            except Exception as e:
-                logger.error(f"FFMpeg not available or error saving: {e}")
-                # Fallback: save frames as individual images
-                frames_dir = os.path.join(captures_dir, self._video_filename.replace('.mp4', '_frames'))
-                os.makedirs(frames_dir, exist_ok=True)
-                for i, frame in enumerate(self._video_frames):
-                    frame_path = os.path.join(frames_dir, f"frame_{i:04d}.png")
-                    plt.imsave(frame_path, frame)
-                logger.info(f"Saved {len(self._video_frames)} frames to: {frames_dir}")
-                messagebox.showinfo("Video Saved", f"FFMpeg not available. Saved {len(self._video_frames)} frames to:\n{frames_dir}", parent=self.root)
-                
-            plt.close(fig_temp)
-            
+                    if frames_dir:
+                        status_label.config(text=f"Saved frames: {filename[:20]}...", fg='#00FF00')
+                        messagebox.showinfo("Video Saved", f"FFMpeg not available. Saved frames to:\n{frames_dir}", parent=self.root)
+                    else:
+                        status_label.config(text=f"Saved: {filename[:25]}...", fg='#00FF00')
+                    self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00'))
         except Exception as e:
-            logger.error(f"Error stopping video capture: {e}")
+            logger.error(f"Error in _video_save_complete: {e}")
+    
+    def _on_auto_record_toggle(self):
+        """Called when Auto Record Run checkbox is toggled."""
+        try:
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                widgets = self.control_panel_ui.widgets
+                auto_record_var = widgets.get('auto_record_var')
+                start_button = widgets.get('start_video_button')
+                stop_button = widgets.get('stop_video_button')
+                
+                if auto_record_var and start_button and stop_button:
+                    is_auto = auto_record_var.get()
+                    
+                    # If auto-record is enabled, grey out manual buttons
+                    if is_auto:
+                        start_button.config(state=tk.DISABLED)
+                        # Only disable stop if not currently recording
+                        if not self._recording_video:
+                            stop_button.config(state=tk.DISABLED)
+                        logger.info("Auto Record Run enabled - video will start/stop with simulation")
+                    else:
+                        # Re-enable manual buttons based on recording state
+                        if self._recording_video:
+                            start_button.config(state=tk.DISABLED)
+                            stop_button.config(state=tk.NORMAL)
+                        else:
+                            start_button.config(state=tk.NORMAL)
+                            stop_button.config(state=tk.DISABLED)
+                        logger.info("Auto Record Run disabled - use manual buttons")
+                        
+        except Exception as e:
+            logger.error(f"Error in _on_auto_record_toggle: {e}")
             logger.error(traceback.format_exc())
-            messagebox.showerror("Capture Error", f"Failed to save video: {e}", parent=self.root)
-        finally:
-            self._reset_video_ui()
-            self._video_frames = []
-            self._video_filename = None
     
     def _reset_video_ui(self):
         """Reset video recording UI state."""
@@ -34439,14 +34558,23 @@ class SimulationGUI(Observer, Observable):
             return
             
         try:
-            # Render canvas to numpy array
-            self.fig.canvas.draw()
-            # Get the canvas as RGB array
-            width, height = self.fig.canvas.get_width_height()
-            buf = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
-            buf = buf.reshape((height, width, 3))
+            # Render canvas to buffer at full figure resolution
+            from io import BytesIO
+            buf = BytesIO()
+            self.fig.savefig(buf, format='png', dpi=self.fig.dpi)
+            buf.seek(0)
             
-            self._video_frames.append(buf.copy())
+            # Read back as image array
+            import PIL.Image
+            img = PIL.Image.open(buf)
+            frame_array = np.array(img)
+            
+            # Convert RGBA to RGB if necessary
+            if frame_array.shape[2] == 4:
+                frame_array = frame_array[:, :, :3]
+            
+            self._video_frames.append(frame_array)
+            buf.close()
             
             # Update status with frame count
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
