@@ -198,6 +198,134 @@ Mouse & Keyboard Controls:
         (Note: Alt = Alt on Win/Lin, Option on macOS)
 
 
+## Gallery
+
+Simulation captures showcasing various rules (oldest to newest). GitHub will render these as playable videos:
+
+### Realm of Lace Unified
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155740.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155821.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155914.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_165309.mp4
+
+### Lace Life with Edges
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_160125.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_160313.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165509.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165613.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165732.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165848.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_170132.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_170648.mp4
+
+### Edge Feedback Life
+
+https://user-images.githubusercontent.com/LACE/Captures/Edge%20Feedback%20Life_20251015_162224.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Edge%20Feedback%20Life_20251015_162246.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Edge%20Feedback%20Life_20251015_162645.mp4
+
+### Life with Continuous Edges
+
+https://user-images.githubusercontent.com/LACE/Captures/Life%20with%20Continuous%20Edges_20251015_162321.mp4
+
+### Life with Color
+
+https://user-images.githubusercontent.com/LACE/Captures/Life%20with%20Color_20251015_162414.mp4
+
+### Life with Dynamic Edges
+
+https://user-images.githubusercontent.com/LACE/Captures/Life%20with%20Dynamic%20Edges_20251015_162434.mp4
+
+### Weighted Edge Influence Life
+
+https://user-images.githubusercontent.com/LACE/Captures/Weighted%20Edge%20Influence%20Life_20251015_162727.mp4
+
+### Network Topology Life
+
+https://user-images.githubusercontent.com/LACE/Captures/Network%20Topology%20Life_20251015_162747.mp4
+
+### Realm of Lace
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162801.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162836.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162907.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162946.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163008.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163027.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163102.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163222.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163259.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163338.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163431.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163600.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163645.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163709.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163753.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163821.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163921.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164017.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164116.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164211.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164318.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164356.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164429.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164516.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164614.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164714.mp4
+
+https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164829.mp4
+
+### Configurable Continuous Life
+
+https://user-images.githubusercontent.com/LACE/Captures/Configurable%20Continuous%20Life_20251015_164910.mp4
+
+### Multi-State Life with Edges
+
+https://user-images.githubusercontent.com/LACE/Captures/Multi-State%20Life%20with%20Edges_20251015_165135.mp4
+
+### Resource Competition Life
+
+https://user-images.githubusercontent.com/LACE/Captures/Resource%20Competition%20Life_20251015_165223.mp4
+
 ## License
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License** (CC BY-NC 4.0).

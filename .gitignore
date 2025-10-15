@@ -100,9 +100,8 @@ LACE/Resources/profiles/*
 LACE/Resources/reports/*
 !LACE/Resources/reports/.gitkeep
 
-# LACE-specific: Exclude screen captures but keep directory structure
-LACE/Captures/*
-!LACE/Captures/.gitkeep
+# LACE-specific: Screen captures are now tracked in git
+# (removed exclusion to allow video showcase in README)
 
 # LACE-specific: Exclude backup files (hundreds of timestamped backups)
 LACE/Resources/config/rules_backups/
