@@ -1,0 +1,14 @@
+{
+  "rule_name": "Multi-State Life with Edges",
+  "rule_category": "MultiStateLifeWithEdges",
+  "start_generation": 0,
+  "start_timestamp": "20251015_165135",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 55,
+  "frame_count": 56,
+  "duration_seconds": 5.6
+}

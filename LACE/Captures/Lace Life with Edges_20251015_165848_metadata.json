@@ -1,0 +1,14 @@
+{
+  "rule_name": "Lace Life with Edges",
+  "rule_category": "LaceLifeWithEdges",
+  "start_generation": 0,
+  "start_timestamp": "20251015_165848",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 43,
+  "frame_count": 44,
+  "duration_seconds": 4.4
+}

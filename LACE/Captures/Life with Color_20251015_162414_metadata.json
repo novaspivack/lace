@@ -1,0 +1,14 @@
+{
+  "rule_name": "Life with Color",
+  "rule_category": "LifeWithColor",
+  "start_generation": 0,
+  "start_timestamp": "20251015_162414",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 58,
+  "frame_count": 59,
+  "duration_seconds": 5.9
+}

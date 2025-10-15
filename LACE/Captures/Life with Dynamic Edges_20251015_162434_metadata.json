@@ -1,0 +1,14 @@
+{
+  "rule_name": "Life with Dynamic Edges",
+  "rule_category": "LifeWithDynamicEdges",
+  "start_generation": 0,
+  "start_timestamp": "20251015_162434",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 84,
+  "frame_count": 85,
+  "duration_seconds": 8.5
+}

@@ -1,0 +1,14 @@
+{
+  "rule_name": "Edge Feedback Life",
+  "rule_category": "EdgeFeedbackLife",
+  "start_generation": 0,
+  "start_timestamp": "20251015_162224",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 11,
+  "frame_count": 12,
+  "duration_seconds": 1.2
+}

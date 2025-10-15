@@ -1,0 +1,14 @@
+{
+  "rule_name": "Configurable Continuous Life",
+  "rule_category": "ConfigurableContinuousLife",
+  "start_generation": 0,
+  "start_timestamp": "20251015_164910",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 61,
+  "frame_count": 62,
+  "duration_seconds": 6.2
+}

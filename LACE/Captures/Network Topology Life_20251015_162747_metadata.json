@@ -1,0 +1,14 @@
+{
+  "rule_name": "Network Topology Life",
+  "rule_category": "NetworkTopologyLife",
+  "start_generation": 0,
+  "start_timestamp": "20251015_162747",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 8,
+  "frame_count": 9,
+  "duration_seconds": 0.9
+}

@@ -1,0 +1,14 @@
+{
+  "rule_name": "Resource Competition Life",
+  "rule_category": "ResourceCompetitionLife",
+  "start_generation": 0,
+  "start_timestamp": "20251015_165223",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 34,
+  "frame_count": 35,
+  "duration_seconds": 3.5
+}

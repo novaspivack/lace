@@ -1,0 +1,14 @@
+{
+  "rule_name": "Realm of Lace",
+  "rule_category": "RealmOfLace",
+  "start_generation": 0,
+  "start_timestamp": "20251015_164829",
+  "grid_dimensions": [
+    50,
+    50
+  ],
+  "neighborhood_type": "MOORE",
+  "end_generation": 29,
+  "frame_count": 30,
+  "duration_seconds": 3.0
+}
