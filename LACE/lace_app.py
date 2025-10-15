@@ -7416,10 +7416,18 @@ class ViewManager:
                         else: self._modified_in_drag = set()
                     else: self._modified_in_drag = set()
                 elif start_node_coords: # No modifiers, clicked on a node
-                    self._mouse_mode = 'scribble_draw'
-                    self.gui._push_grid_state_to_undo("Scribble Draw")
-                    logger.info(f"  Mode set to 'scribble_draw'. Start node: {start_node_coords}")
-                    self._modified_in_drag = set()
+                    # Check if clicking on a selected node -> start drag-to-move
+                    if start_node_coords in self.gui.current_selection.get('nodes', set()):
+                        self._mouse_mode = 'drag_selection'
+                        self.gui._dragging_selection = True
+                        self.gui._selection_drag_start = start_node_coords
+                        logger.info(f"  Mode set to 'drag_selection'. Dragging selection from {start_node_coords}")
+                    else:
+                        # Normal scribble draw
+                        self._mouse_mode = 'scribble_draw'
+                        self.gui._push_grid_state_to_undo("Scribble Draw")
+                        logger.info(f"  Mode set to 'scribble_draw'. Start node: {start_node_coords}")
+                        self._modified_in_drag = set()
                 else: # No modifiers, clicked on empty space -> PANNING
                     # --- MODIFIED: Set panning mode explicitly ---
                     self.pan_start_x = x_data; self.pan_start_y = y_data; self.panning = True; self._mouse_mode = 'panning'
@@ -7642,6 +7650,21 @@ class ViewManager:
 
             # --- Tool Actions ---
             elif self._mouse_mode == 'lasso_select': logger.debug(f"{log_prefix}Finalizing LASSO selection"); self._handle_lasso_release(x_data, y_data) # No queue clear needed
+            elif self._mouse_mode == 'drag_selection':
+                # Handle selection drag-to-move
+                release_node = self._find_node_in_click_field(x_data, y_data)
+                if release_node and self.gui._selection_drag_start:
+                    # Calculate offset
+                    offset = tuple(release_node[i] - self.gui._selection_drag_start[i] for i in range(len(release_node)))
+                    if offset != (0, 0) and offset != (0, 0, 0):  # Only move if actually dragged
+                        logger.info(f"{log_prefix}Moving selection by offset {offset}")
+                        self.gui._move_selection_by_offset(offset)
+                        grid_modified_by_release = True
+                    else:
+                        logger.debug(f"{log_prefix}No movement detected in drag_selection mode")
+                self.gui._dragging_selection = False
+                self.gui._selection_drag_start = None
+                logger.debug(f"{log_prefix}Drag selection mode ended")
             elif self._mouse_mode == 'erase_action':
                 logger.debug(f"{log_prefix}Finalizing ERASE action");
                 # Check if erase actually happened during drag/press
@@ -22109,6 +22132,9 @@ class SimulationGUI(Observer, Observable):
             self.active_tool: Optional[str] = None
             self._shape_to_place: Optional['ShapeDefinition'] = None  # Shape pending placement
             self._add_edges_on_shape_place: bool = False  # Whether to add edges when placing
+            self._dragging_selection: bool = False  # Whether user is dragging a selection
+            self._selection_drag_start: Optional[Tuple[int, ...]] = None  # Start coordinate of selection drag
+            self._selection_drag_offset: Optional[Tuple[int, ...]] = None  # Offset from drag start to selection origin
             self.paused = False
             self._user_interaction_active = False
             self._stopped = True
@@ -34215,6 +34241,55 @@ class SimulationGUI(Observer, Observable):
             logger.debug("Y-axis inverted to match grid orientation (i=0 at top)")
         else:
             logger.debug("Y-axis already inverted, no action needed")
+    
+    def _move_selection_by_offset(self, offset: Tuple[int, ...]):
+        """Move the current selection by the given offset (drag-to-move).
+        Cuts from old location and pastes at new location."""
+        log_prefix = "_move_selection_by_offset: "
+        logger.info(f"{log_prefix}Moving selection by offset {offset}")
+        
+        if not hasattr(self, 'current_selection') or not self.current_selection.get('nodes'):
+            logger.warning(f"{log_prefix}No selection to move")
+            return
+        
+        # Copy the selection first
+        self._copy_selection()
+        
+        if not hasattr(self, '_clipboard') or not self._clipboard:
+            logger.error(f"{log_prefix}Failed to copy selection to clipboard")
+            return
+        
+        # Calculate the new origin (find min coords in selection, then apply offset)
+        selected_coords = self.current_selection.get('nodes', set())
+        if not selected_coords:
+            return
+        
+        min_coords = tuple(min(coord[i] for coord in selected_coords) for i in range(len(list(selected_coords)[0])))
+        new_origin = tuple(min_coords[i] + offset[i] for i in range(len(min_coords)))
+        
+        logger.info(f"{log_prefix}Selection bounding box starts at {min_coords}, moving to {new_origin}")
+        
+        # Erase the old selection
+        self._push_grid_state_to_undo("Move Selection")
+        for coords in selected_coords:
+            idx = _ravel_multi_index(np.array(coords), self.grid.dimensions)
+            self.grid.set_node_state(idx, 0.0)
+            # Remove edges connected to this node
+            edges_to_remove = []
+            for (n1, n2), state in list(self.grid.edges.items()):
+                if n1 == idx or n2 == idx:
+                    edges_to_remove.append((n1, n2))
+            for edge in edges_to_remove:
+                self.grid.edges.pop(edge, None)
+        
+        # Clear the selection
+        self.current_selection['nodes'] = set()
+        self.current_selection['edges'] = set()
+        
+        # Paste at new location
+        self._paste_selection(new_origin)
+        
+        logger.info(f"{log_prefix}Selection moved successfully")
         
 
     def _add_default_edges_to_selection(self):
