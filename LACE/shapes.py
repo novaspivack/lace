@@ -817,17 +817,16 @@ class ShapePlacer:
         # --- Validate target coordinates ---
         # Note: Shape relative coords use RLE convention (Y down), but grid uses Y up
         # After normalization, shape coords go from (0,0) to (max_x, max_y)
-        # We need to map shape Y=0 (top in shape space) to a HIGH Y value in grid space
-        # Calculate shape height for Y-axis mapping
-        shape_height = max_coord[1] if len(max_coord) > 1 else 0
+        # Click point is the top-left of the shape, and shape extends right and down
         
         for rel_coord in projected_relative_coords:
             if len(rel_coord) != len(origin): continue
             # For 2D: invert Y-axis (shapes have Y down, grid has Y up)
             if len(rel_coord) == 2:
-                # Map shape's top (rel_y=0) to origin_y + shape_height
-                # Map shape's bottom (rel_y=max_y) to origin_y
-                abs_coord = (origin[0] + rel_coord[0], origin[1] + (shape_height - rel_coord[1]))
+                # Map shape's top-left (rel_y=0) to origin (click point is top-left)
+                # Shape extends rightward (+X) and downward (-Y in grid coords)
+                # Since shape Y increases downward, we subtract to make grid Y decrease
+                abs_coord = (origin[0] + rel_coord[0], origin[1] - rel_coord[1])
             else:
                 # For 3D or other dimensions, use direct addition (might need adjustment for 3D later)
                 abs_coord = tuple(o + r for o, r in zip(origin, rel_coord))

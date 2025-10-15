@@ -34260,7 +34260,7 @@ class SimulationGUI(Observer, Observable):
         if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
             status_label = self.control_panel_ui.widgets.get('buffering_status_label')
             if status_label:
-                status_label.config(text=f"Click to place '{selected_shape_def.name}' (ESC to cancel)")  # type: ignore
+                status_label.config(text=f"Click to place '{selected_shape_def.name}' at top-left (ESC=cancel)")  # type: ignore
         
         return  # Don't place immediately, wait for click
 
@@ -34317,7 +34317,7 @@ class SimulationGUI(Observer, Observable):
                     if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                         status_label = self.control_panel_ui.widgets.get('buffering_status_label')
                         if status_label:
-                            status_label.config(text=f"✗ Shape won't fit here. Try clicking lower on the canvas.")  # type: ignore
+                            status_label.config(text=f"✗ Shape won't fit. Click higher/lefter on canvas.")  # type: ignore
                     # Brief flash to show feedback
                     self.root.after(2000, lambda: self._update_placement_status_label())
                     # Pop the potentially incorrect undo state
@@ -34341,7 +34341,7 @@ class SimulationGUI(Observer, Observable):
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 status_label = self.control_panel_ui.widgets.get('buffering_status_label')
                 if status_label:
-                    status_label.config(text=f"Click to place '{self._shape_to_place.name}' (ESC to cancel)")  # type: ignore
+                    status_label.config(text=f"Click to place '{self._shape_to_place.name}' at top-left (ESC=cancel)")  # type: ignore
     
     def _cancel_shape_placement(self):
         """Cancel active shape placement mode."""
