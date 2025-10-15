@@ -20638,6 +20638,7 @@ class ControlPanelUI:
         self._create_color_settings_section(parent_frame, widgets_dict)
         self._create_analytics_section(parent_frame, widgets_dict)
         self._create_save_load_section(parent_frame, widgets_dict)
+        self._create_screen_capture_section(parent_frame, widgets_dict)
         self._create_performance_section(parent_frame, widgets_dict)
         self._create_debug_section(parent_frame, widgets_dict)
         # --- End passing widgets_dict ---
@@ -21409,6 +21410,63 @@ class ControlPanelUI:
         load_button.pack(fill=tk.X, padx=5, pady=2)
         widgets_dict['load_button'] = load_button
 
+    def _create_screen_capture_section(self, parent_frame: tk.Frame, widgets_dict: Dict[str, tk.Widget]):
+        """Create screen capture section for still images and videos."""
+        capture_section = tk.LabelFrame(parent_frame, text="Screen Capture", bg='#404040', fg='white')
+        capture_section.pack(fill=tk.X, padx=5, pady=5)
+        widgets_dict['capture_section'] = capture_section
+        
+        button_width = 15
+        
+        # Capture Still Image button
+        capture_image_button = tk.Button(
+            capture_section,
+            text="Capture Image",
+            command=self.gui._capture_still_image,
+            width=button_width,
+            disabledforeground='black'
+        )
+        capture_image_button.pack(fill=tk.X, padx=5, pady=2)
+        widgets_dict['capture_image_button'] = capture_image_button
+        
+        # Video recording buttons frame
+        video_frame = tk.Frame(capture_section, bg='#404040')
+        video_frame.pack(fill=tk.X, padx=5, pady=2)
+        
+        # Start Video button
+        start_video_button = tk.Button(
+            video_frame,
+            text="Start Video",
+            command=self.gui._start_video_capture,
+            width=7,
+            disabledforeground='black'
+        )
+        start_video_button.pack(side=tk.LEFT, padx=(0, 2), expand=True, fill=tk.X)
+        widgets_dict['start_video_button'] = start_video_button
+        
+        # Stop Video button
+        stop_video_button = tk.Button(
+            video_frame,
+            text="Stop Video",
+            command=self.gui._stop_video_capture,
+            width=7,
+            state=tk.DISABLED,
+            disabledforeground='black'
+        )
+        stop_video_button.pack(side=tk.LEFT, padx=(2, 0), expand=True, fill=tk.X)
+        widgets_dict['stop_video_button'] = stop_video_button
+        
+        # Status label
+        video_status_label = tk.Label(
+            capture_section,
+            text="Ready",
+            bg='#404040',
+            fg='#00FF00',
+            font=("TkDefaultFont", 9)
+        )
+        video_status_label.pack(fill=tk.X, padx=5, pady=(2, 5))
+        widgets_dict['video_status_label'] = video_status_label
+    
     def _create_color_settings_section(self, parent_frame: tk.Frame, widgets_dict: Dict[str, tk.Widget]): # Added widgets_dict argument
         """Create color settings section with a button to launch the modal."""
         color_section = tk.LabelFrame(parent_frame, text="Color Settings", bg='#404040', fg='white')
@@ -22109,6 +22167,9 @@ class SimulationGUI(Observer, Observable):
             self.active_tool: Optional[str] = None
             self._shape_to_place: Optional['ShapeDefinition'] = None  # Shape pending placement
             self._add_edges_on_shape_place: bool = False  # Whether to add edges when placing
+            self._recording_video: bool = False  # Whether currently recording video
+            self._video_frames: List[np.ndarray] = []  # Frames for video recording
+            self._video_filename: Optional[str] = None  # Current video filename
             self.paused = False
             self._user_interaction_active = False
             self._stopped = True
@@ -34214,6 +34275,183 @@ class SimulationGUI(Observer, Observable):
             logger.debug("Y-axis inverted to match grid orientation (i=0 at top)")
         else:
             logger.debug("Y-axis already inverted for this axes object")
+    
+    def _capture_still_image(self):
+        """Capture a still image of the canvas and save to Captures folder."""
+        try:
+            # Create captures directory if it doesn't exist
+            captures_dir = os.path.join(BASE_PATH, "Captures")
+            os.makedirs(captures_dir, exist_ok=True)
+            
+            # Generate filename with rule name and timestamp
+            rule_name = self.controller.rule.name if self.controller and self.controller.rule else "Unknown"
+            # Clean rule name for filename
+            rule_name_clean = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in rule_name)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{rule_name_clean}_{timestamp}.png"
+            filepath = os.path.join(captures_dir, filename)
+            
+            # Save the figure (canvas only, not toolbar)
+            self.fig.savefig(filepath, dpi=150, bbox_inches='tight', facecolor=self.fig.get_facecolor())
+            
+            logger.info(f"Captured still image: {filepath}")
+            
+            # Update status
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                status_label = self.control_panel_ui.widgets.get('video_status_label')
+                if status_label:
+                    status_label.config(text=f"Saved: {filename[:30]}...", fg='#00FF00')
+                    # Reset status after 3 seconds
+                    self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00'))
+                    
+        except Exception as e:
+            logger.error(f"Error capturing still image: {e}")
+            logger.error(traceback.format_exc())
+            messagebox.showerror("Capture Error", f"Failed to capture image: {e}", parent=self.root)
+    
+    def _start_video_capture(self):
+        """Start recording video frames."""
+        try:
+            # Create captures directory if it doesn't exist
+            captures_dir = os.path.join(BASE_PATH, "Captures")
+            os.makedirs(captures_dir, exist_ok=True)
+            
+            # Generate filename with rule name and timestamp
+            rule_name = self.controller.rule.name if self.controller and self.controller.rule else "Unknown"
+            rule_name_clean = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in rule_name)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self._video_filename = f"{rule_name_clean}_{timestamp}.mp4"
+            
+            # Initialize video recording
+            self._recording_video = True
+            self._video_frames = []
+            
+            logger.info(f"Started video recording: {self._video_filename}")
+            
+            # Update UI
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                widgets = self.control_panel_ui.widgets
+                if 'start_video_button' in widgets:
+                    widgets['start_video_button'].config(state=tk.DISABLED)
+                if 'stop_video_button' in widgets:
+                    widgets['stop_video_button'].config(state=tk.NORMAL)
+                if 'video_status_label' in widgets:
+                    widgets['video_status_label'].config(text="● RECORDING", fg='#FF0000')
+                    
+        except Exception as e:
+            logger.error(f"Error starting video capture: {e}")
+            logger.error(traceback.format_exc())
+            messagebox.showerror("Capture Error", f"Failed to start video: {e}", parent=self.root)
+            self._recording_video = False
+    
+    def _stop_video_capture(self):
+        """Stop recording and save video file."""
+        if not self._recording_video:
+            logger.warning("No video recording in progress")
+            return
+            
+        try:
+            self._recording_video = False
+            
+            if not self._video_frames:
+                logger.warning("No frames captured for video")
+                messagebox.showwarning("No Frames", "No frames were captured.", parent=self.root)
+                self._reset_video_ui()
+                return
+            
+            captures_dir = os.path.join(BASE_PATH, "Captures")
+            filepath = os.path.join(captures_dir, self._video_filename)
+            
+            # Update status
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                status_label = self.control_panel_ui.widgets.get('video_status_label')
+                if status_label:
+                    status_label.config(text="Saving video...", fg='#FFFF00')
+            
+            # Save frames as video using matplotlib animation
+            from matplotlib.animation import FuncAnimation, FFMpegWriter
+            
+            fig_temp = Figure(figsize=self.fig.get_size_inches(), dpi=100)
+            ax_temp = fig_temp.add_subplot(111)
+            ax_temp.axis('off')
+            
+            im = ax_temp.imshow(self._video_frames[0])
+            
+            def update_frame(frame_idx):
+                im.set_array(self._video_frames[frame_idx])
+                return [im]
+            
+            anim = FuncAnimation(fig_temp, update_frame, frames=len(self._video_frames), blit=True, interval=100)
+            
+            # Try to save with FFMpeg
+            try:
+                writer = FFMpegWriter(fps=10, bitrate=1800)
+                anim.save(filepath, writer=writer)
+                logger.info(f"Saved video: {filepath}")
+                
+                # Update status
+                if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                    status_label = self.control_panel_ui.widgets.get('video_status_label')
+                    if status_label:
+                        status_label.config(text=f"Saved: {self._video_filename[:25]}...", fg='#00FF00')
+                        self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00'))
+                        
+            except Exception as e:
+                logger.error(f"FFMpeg not available or error saving: {e}")
+                # Fallback: save frames as individual images
+                frames_dir = os.path.join(captures_dir, self._video_filename.replace('.mp4', '_frames'))
+                os.makedirs(frames_dir, exist_ok=True)
+                for i, frame in enumerate(self._video_frames):
+                    frame_path = os.path.join(frames_dir, f"frame_{i:04d}.png")
+                    plt.imsave(frame_path, frame)
+                logger.info(f"Saved {len(self._video_frames)} frames to: {frames_dir}")
+                messagebox.showinfo("Video Saved", f"FFMpeg not available. Saved {len(self._video_frames)} frames to:\n{frames_dir}", parent=self.root)
+                
+            plt.close(fig_temp)
+            
+        except Exception as e:
+            logger.error(f"Error stopping video capture: {e}")
+            logger.error(traceback.format_exc())
+            messagebox.showerror("Capture Error", f"Failed to save video: {e}", parent=self.root)
+        finally:
+            self._reset_video_ui()
+            self._video_frames = []
+            self._video_filename = None
+    
+    def _reset_video_ui(self):
+        """Reset video recording UI state."""
+        if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+            widgets = self.control_panel_ui.widgets
+            if 'start_video_button' in widgets:
+                widgets['start_video_button'].config(state=tk.NORMAL)
+            if 'stop_video_button' in widgets:
+                widgets['stop_video_button'].config(state=tk.DISABLED)
+            if 'video_status_label' in widgets:
+                widgets['video_status_label'].config(text="Ready", fg='#00FF00')
+    
+    def _capture_video_frame(self):
+        """Capture the current canvas as a frame for video recording."""
+        if not self._recording_video:
+            return
+            
+        try:
+            # Render canvas to numpy array
+            self.fig.canvas.draw()
+            # Get the canvas as RGB array
+            width, height = self.fig.canvas.get_width_height()
+            buf = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
+            buf = buf.reshape((height, width, 3))
+            
+            self._video_frames.append(buf.copy())
+            
+            # Update status with frame count
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                status_label = self.control_panel_ui.widgets.get('video_status_label')
+                if status_label:
+                    status_label.config(text=f"● REC ({len(self._video_frames)} frames)", fg='#FF0000')
+                    
+        except Exception as e:
+            logger.error(f"Error capturing video frame: {e}")
     
 
     def _add_default_edges_to_selection(self):
