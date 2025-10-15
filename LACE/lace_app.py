@@ -34346,8 +34346,8 @@ class SimulationGUI(Observer, Observable):
             filename = f"{rule_name_clean}_{timestamp}.png"
             filepath = os.path.join(captures_dir, filename)
             
-            # Save the figure at high resolution without tight cropping
-            self.fig.savefig(filepath, dpi=150, facecolor=self.fig.get_facecolor())
+            # Save the figure at high resolution, cropped to grid content
+            self.fig.savefig(filepath, dpi=150, bbox_inches='tight', pad_inches=0, facecolor=self.fig.get_facecolor())
             
             logger.info(f"Captured still image: {filepath}")
             
@@ -34567,8 +34567,19 @@ class SimulationGUI(Observer, Observable):
             buf = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)  # type: ignore
             buf = buf.reshape((height, width, 4))
             
+            # Get axes bounding box in pixels to crop to just the grid content
+            bbox = self.ax.get_window_extent().transformed(self.fig.dpi_scale_trans.inverted())
+            # Convert to pixel coordinates
+            left = int(bbox.x0 * self.fig.dpi)
+            bottom = int(bbox.y0 * self.fig.dpi)
+            right = int(bbox.x1 * self.fig.dpi)
+            top = int(bbox.y1 * self.fig.dpi)
+            
+            # Crop to axes area (flip y-axis because image origin is top-left)
+            frame_cropped = buf[height - top:height - bottom, left:right]
+            
             # Convert RGBA to RGB
-            frame_array = buf[:, :, :3].copy()
+            frame_array = frame_cropped[:, :, :3].copy()
             
             self._video_frames.append(frame_array)
             
