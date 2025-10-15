@@ -19634,7 +19634,8 @@ class GridVisualizer(Observer):
             # [ Set offsets, sizes, linewidths - Unchanged ]
             coords_array = np.column_stack([x_coords, y_coords, z_coords])
             self._node_scatter_3d._offsets3d = (coords_array[:, 0], coords_array[:, 1], coords_array[:, 2]) # type: ignore
-            self._node_scatter_3d.set_sizes([size_to_use] * len(x_coords))
+            # Use numpy array for sizes to ensure proper indexing in 3D projection
+            self._node_scatter_3d.set_sizes(np.full(len(x_coords), size_to_use))
             self._node_scatter_3d.set_linewidths([outline_width] * len(x_coords))
 
             # --- Determine Final Edge Colors (Represents Highlight/Selection) ---
@@ -19679,9 +19680,11 @@ class GridVisualizer(Observer):
 
             # --- Apply final colors ---
             logger.debug(f"{log_prefix}Setting final face colors (Count: {len(node_face_colors)}).")
-            if node_face_colors: self._node_scatter_3d.set_facecolors(node_face_colors) # Use pre-calculated RGBA face colors
+            if node_face_colors is not None and len(node_face_colors) > 0:
+                self._node_scatter_3d.set_facecolors(node_face_colors) # Use pre-calculated RGBA face colors
             logger.debug(f"{log_prefix}Setting final edge colors (Count: {len(final_edge_colors)}).")
-            if final_edge_colors: self._node_scatter_3d.set_edgecolors(final_edge_colors)    # Use calculated HEX edge colors
+            if final_edge_colors is not None and len(final_edge_colors) > 0:
+                self._node_scatter_3d.set_edgecolors(final_edge_colors)    # Use calculated HEX edge colors
             # ---
 
         else:
