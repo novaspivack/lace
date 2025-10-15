@@ -24794,6 +24794,9 @@ class SimulationGUI(Observer, Observable):
                 )
                 logger.debug(f"CoordinateSystem updated with dimensions: {self.dimensions}, scale: {self.coord_system.scale_factor}, spacing: {self.coord_system.node_spacing}")
 
+            # Check if preset was applied during initialization
+            preset_applied = getattr(self, '_preset_was_applied_during_init', False)
+            
             if self.grid is not None and not preset_applied:
                 logger.info("Preset NOT applied during init, initializing grid state now.")
                 if self.grid.spatial_hash is not None:
@@ -36538,6 +36541,7 @@ class Initializer(threading.Thread):
             result["initial_conditions_name"] = initial_conditions_name_for_gui
             # --- ADDED: Pass the loaded preset object ---
             result["initial_preset_obj"] = default_preset_obj
+            result["preset_applied"] = preset_applied  # Pass the flag to GUI
             # ---
 
             logger.info("Initializer thread finished successfully.")
@@ -36836,7 +36840,10 @@ class Application:
             initial_rule_name = init_result.get("initial_rule_name", GlobalSettings.Defaults.DEFAULT_RULE)
             active_preset_name = init_result.get("active_preset_name")
             initial_conditions_name = init_result.get("initial_conditions_name", "Random")
+            initial_preset_obj = init_result.get("initial_preset_obj")
+            preset_applied = init_result.get("preset_applied", False)
             logger.info(f"_on_initialization_complete: Received initial_conditions_name from queue: '{initial_conditions_name}'")
+            logger.info(f"_on_initialization_complete: preset_applied={preset_applied}, initial_preset_obj={'Present' if initial_preset_obj else 'None'}")
 
             # Create SimulationGUI instance
             self.gui = SimulationGUI(
@@ -36854,8 +36861,14 @@ class Application:
                 shape_manager=init_result["shape_manager"],
                 initial_rule_name=initial_rule_name,
                 active_preset_name=active_preset_name,
-                initial_conditions_name=initial_conditions_name
+                initial_conditions_name=initial_conditions_name,
+                initial_preset_obj=initial_preset_obj
             )
+            
+            # Store preset_applied flag for GUI's _complete_initialization to use
+            if self.gui:
+                self.gui._preset_was_applied_during_init = preset_applied
+                logger.info(f"Set _preset_was_applied_during_init = {preset_applied}")
 
             if self.gui and self.gui.grid:
                 self.gui.grid.gui = self.gui
