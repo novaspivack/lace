@@ -802,7 +802,11 @@ class ShapePlacer:
                     normalized_edge_states[(node1_norm, node2_norm)] = state
                 projected_edge_states = normalized_edge_states
             
-            logger.debug(f"Normalized shape coords from min={min_coord_tuple} max={tuple(max_coord)} to start at (0,0)")
+            # Update max_coord to reflect normalization
+            for d in range(len(max_coord)):
+                max_coord[d] = max_coord[d] - min_coord[d]
+            
+            logger.debug(f"Normalized shape coords from min={min_coord_tuple} to (0,0), new max={tuple(max_coord)}")
             projected_relative_coords = normalized_coords
         # ---
         
