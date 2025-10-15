@@ -15,7 +15,7 @@ LACE extends traditional cellular automata (like Conway's Game of Life) by treat
 
 - 🎨 **182 Built-in Rules** including classic Game of Life and novel "Realm of Lace" variants
 - 🎯 **Multiple Rule Types**: Standard Life-like, Network CA, Metric-based, and more
-- 🌐 **2D Support** with multiple coordinate systems (3D support coming soon)
+- 🌐 **2D Support** with multiple coordinate systems (3D support partially implemented; needs further )
 - 📊 **Real-time Analytics** with customizable metrics
 - 🎨 **Flexible Visualization** with 21 color schemes
 - 💾 **4,795 Shape Library** (via Git LFS)

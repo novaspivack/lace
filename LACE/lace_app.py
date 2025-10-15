@@ -20785,16 +20785,15 @@ class ControlPanelUI:
 
         # self.gui.dimension_var is initialized in __init__
 
-        # Get unique dimension names without duplicates
-        dimension_names = sorted(list(set(dim.name for dim in Dimension)))
+        # NOTE: THREE_D is not fully implemented and has been disabled
+        # Only TWO_D is available
+        dimension_names = ["TWO_D"]
 
         # Create the OptionMenu
         dimension_selector = tk.OptionMenu(
             dimension_section,
             self.gui.dimension_var,
-            *dimension_names,
-            # CORRECTED: Pass the selected value using .get()
-            command=lambda value: self.gui._on_dimension_change(self.gui.dimension_var.get())
+            *dimension_names
         )
         dimension_selector.pack(fill=tk.X, padx=5, pady=2)
         widgets_dict['dimension_selector'] = dimension_selector
