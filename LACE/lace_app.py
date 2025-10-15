@@ -30401,9 +30401,10 @@ class SimulationGUI(Observer, Observable):
             x_data, y_data = data_coords[0], data_coords[1]
             grid_coords_float = self.coord_system.display_to_grid((x_data, y_data))
             if grid_coords_float is not None:
-                clicked_grid_coords = tuple(int(np.floor(c)) for c in grid_coords_float)
+                # Use proper rounding (same as _find_node_in_click_field)
+                clicked_grid_coords = tuple(int(c + 0.5) for c in grid_coords_float)
             else: logger.warning(f"{log_prefix}Could not convert display coords to grid coords.")
-            logger.debug(f"{log_prefix}Clicked grid coordinate (potential top-left): {clicked_grid_coords}")
+            logger.debug(f"{log_prefix}Clicked grid coordinate: {clicked_grid_coords}")
         except Exception as e:
             logger.error(f"{log_prefix}Error converting screen coords for context menu: {e}")
             logger.error(traceback.format_exc())
