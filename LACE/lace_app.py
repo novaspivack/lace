@@ -7444,8 +7444,14 @@ class ViewManager:
                     self.gui._place_shape_at_click(grid_coord)
                 else:
                     logger.warning("Could not determine grid coordinates for shape placement")
-                self._mouse_mode = None; self.panning = False; logger.debug("  Shape placement handled, mode reset")
-                # Prevent further event processing (don't toggle cell at click location)
+                # Reset all mouse state to prevent release handler from processing this as a click
+                self._mouse_mode = None
+                self._mouse_pressed = False
+                self._press_position = None
+                self._press_time = 0
+                self.panning = False
+                logger.debug("  Shape placement handled, mouse state cleared")
+                # Prevent further event processing
                 return "break"
             else: logger.warning(f"Unhandled active tool: {active_tool}"); self._mouse_mode = None; self.panning = False; logger.debug("  Mode set to None, panning=False")
 
