@@ -104,29 +104,41 @@ import cProfile
 import pstats
 from functools import lru_cache
 
-from .logging_config import setup_logging, logging, logger, APP_PATHS, APP_DIR, DETAIL_LEVEL_NUM, setup_directories, LogSettings
-from .enums import Dimension, NeighborhoodType, CoordinateSystemType, StateType, TieBreaker
-from .settings import GlobalSettings
-from .interfaces import CoordinateSystem, Rule, NeighborhoodData, Shape, RuleMetadata, BaseMetrics
-from .utils import (
+# --- Path Setup for Direct Execution ---
+# Allow this script to run both as a module (python -m LACE.lace_app) and directly (python lace_app.py)
+if __name__ == "__main__" and __package__ is None:
+    # Get the directory containing this file (LACE/)
+    _script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Get the parent directory (project root)
+    _parent_dir = os.path.dirname(_script_dir)
+    # Add parent to sys.path so 'LACE' package can be found
+    if _parent_dir not in sys.path:
+        sys.path.insert(0, _parent_dir)
+
+# Use absolute imports to work in both modes
+from LACE.logging_config import setup_logging, logging, logger, APP_PATHS, APP_DIR, DETAIL_LEVEL_NUM, setup_directories, LogSettings
+from LACE.enums import Dimension, NeighborhoodType, CoordinateSystemType, StateType, TieBreaker
+from LACE.settings import GlobalSettings
+from LACE.interfaces import CoordinateSystem, Rule, NeighborhoodData, Shape, RuleMetadata, BaseMetrics
+from LACE.utils import (
     SpatialHashGrid, PerformanceLogger, SimulationStats, PerformanceMonitor, timer_decorator, log_errors,
     _ravel_multi_index, _unravel_index, _njit_unravel_index,
     _are_von_neumann_neighbors, _are_moore_neighbors, _are_hex_neighbors, _are_hex_prism_neighbors, 
     _populate_neighbor_array_optimized, _get_neighbors_dynamic_helper, BlittingManager
     )   
-from .presets import (
+from LACE.presets import (
     GridPreset, GridPresetManager, GridPresetManagementModal, CreateGridPresetModal, PatternFitResizeDialog, 
     ResizeProgressDialog, PatternFitResizeDialog, ResizePromptDialog
 )
-from .shapes import (
+from LACE.shapes import (
     ShapeDefinition, ShapePlacer, ShapeLibraryManager, ShapeGenerator, OverlapPromptDialog, UpdateShapeConfirmationDialog,
     generate_rle, parse_rle, ShapeLibraryEditorWindow, SaveShapeDialog
     )
-from .rules import RuleLibrary, RuleLibraryManager, _standard_colormaps, calculate_max_neighbors
-from .initial_conditions import InitialConditionManager
-from .presets import GridPresetManager
-from .colors import ColorScheme, ColorManager, _get_contrasting_inverted_color, ColorSettingsModal, is_dark_theme
-from .analytics import ( # Assuming analytics.py is in the same directory/package
+from LACE.rules import RuleLibrary, RuleLibraryManager, _standard_colormaps, calculate_max_neighbors
+from LACE.initial_conditions import InitialConditionManager
+from LACE.presets import GridPresetManager
+from LACE.colors import ColorScheme, ColorManager, _get_contrasting_inverted_color, ColorSettingsModal, is_dark_theme
+from LACE.analytics import ( # Assuming analytics.py is in the same directory/package
     AnalyticsManager, MetricRegistry, AnalyzerRegistry,
     BasicCountsCalculator, StabilityAnalyzer, DEFAULT_REPORT_DIR, AnalyticsWindow
 )

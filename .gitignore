@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,28 +16,45 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# PyInstaller
+*.manifest
+*.spec
 
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
 .hypothesis/
 .pytest_cache/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
 
 # pyenv
 .python-version
@@ -49,122 +62,68 @@ coverage.xml
 # Environments
 .env
 .venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
-# IDEs and editors
+# IDEs
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
-
-# OS files
+*.swp
+*.swo
+*~
 .DS_Store
-Thumbs.db
 
-# Logs and data
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
 *.log
-*.db
-*.sqlite
-*.sqlite3
+*.log.*
+
+# LACE-specific: Exclude runtime logs but keep directory structure
+LACE/Resources/logs/
+!LACE/Resources/logs/.gitkeep
+LACE_Taichi_Demo/logs/
+!LACE_Taichi_Demo/logs/.gitkeep
+
+# LACE-specific: Exclude saves and cache but keep directory structure
+LACE/Resources/saves/*
+!LACE/Resources/saves/.gitkeep
+LACE/Resources/cache/*
+!LACE/Resources/cache/.gitkeep
+
+# LACE-specific: Exclude user profiles but keep directory structure
+LACE/Resources/profiles/*
+!LACE/Resources/profiles/.gitkeep
+
+# LACE-specific: Exclude generated reports but keep directory structure
+LACE/Resources/reports/*
+!LACE/Resources/reports/.gitkeep
+
+# LACE-specific: Exclude backup files (hundreds of timestamped backups)
+LACE/Resources/config/rules_backups/
+LACE/Resources/config/presets_backups/
+
+# Note: Large data files like shapes.json are tracked with Git LFS
+
+# imgui state file
+imgui.ini
 
 # Backup files
-*~
-
-# Cache and temporary files
-cache/
-checkpoints/
+*.bak
+*.backup
 *.tmp
-*.temp
+*~
+* copy.json
+* copy *.json
 
-# Large data files
-*.csv
-*.json
-*.pkl
-*.pickle
-*.h5
-*.hdf5
-
-# Configuration files that might contain sensitive data
-imgui.ini
-config.ini
-settings.ini
-
-# Build artifacts
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.dylib
-
-# Taichi specific
-*.ti
-*.tcb
-*.tcm
-
-# Visual Studio
-.vs/
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-
-# CMake
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
-
-# Compiled Python files
+# Compiled files
 *.pyc
 *.pyo
 *.pyd
 
-# PyInstaller
-*.manifest
-*.spec
+# Numba cache
+.numba_cache/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-local_settings.py
-db.sqlite3
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Matplotlib
+.matplotlib/

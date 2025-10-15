@@ -40,6 +40,7 @@ except ImportError as e:
 
 # --- Taichi Script Specific Settings ---
 APP_NAME = "taichi_advanced_render" # Specific App Name for logs
+RULE_DENSITY_CONFIG_FILENAME = "rule_densities.json" # Config file for per-rule densities
 
 # --- Logging Configuration (Local to this script) ---
 class LogSettings:
@@ -163,6 +164,36 @@ def load_rules_from_json(filepath):
     except Exception as e:
         logger.error(f"An error occurred while reading {filepath}: {e}")
         return []
+
+def load_rule_densities():
+    """Loads saved initial densities for rules from config file."""
+    config_path = os.path.join(TAICHI_APP_PATHS.get('config', '.'), RULE_DENSITY_CONFIG_FILENAME)
+    if not os.path.exists(config_path):
+        logger.info(f"Rule density config file not found at {config_path}. Using defaults.")
+        return {}
+    try:
+        with open(config_path, 'r') as f:
+            data = json.load(f)
+        logger.info(f"Loaded {len(data)} rule density settings from {config_path}")
+        return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Error decoding rule density config from {config_path}: {e}")
+        return {}
+    except Exception as e:
+        logger.error(f"Error loading rule density config from {config_path}: {e}")
+        return {}
+
+def save_rule_densities(density_dict):
+    """Saves initial densities for rules to config file."""
+    config_path = os.path.join(TAICHI_APP_PATHS.get('config', '.'), RULE_DENSITY_CONFIG_FILENAME)
+    try:
+        with open(config_path, 'w') as f:
+            json.dump(density_dict, f, indent=2)
+        logger.info(f"Saved {len(density_dict)} rule density settings to {config_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error saving rule density config to {config_path}: {e}")
+        return False
 
 def parse_rule_variants(json_rules):
     """Parses JSON rules into the format needed for the Taichi script."""
@@ -298,6 +329,9 @@ RULE_VARIANTS = []
 all_json_rules = load_rules_from_json(JSON_FILE_PATH) # Functions are now defined above
 RULE_VARIANTS = parse_rule_variants(all_json_rules) # Functions are now defined above
 
+# Load saved density settings for rules
+rule_density_map = load_rule_densities()  # Load saved densities
+
 # --- Instantiate Color Manager ---
 # NOTE: ColorManager will still log to the main LACE log file
 # because it imports LACE.logging_config internally.
@@ -335,9 +369,13 @@ WINDOW_SIZE = 1000
 # --- Shared Parameters ---
 WRAP = True
 INITIAL_DENSITY = 0.10
+DEFAULT_INITIAL_DENSITY = 0.10  # Fallback default
 STEP_DELAY = 1/60
 paused = False
 speed_slider_value = 60.0
+
+# --- Per-Rule Density Storage ---
+rule_density_map: Dict[str, float] = {}  # Maps rule name -> initial density
 
 # --- Rule Selection State ---
 # Fallback definition moved here, after RULE_VARIANTS is populated or fails
@@ -489,11 +527,12 @@ def clear_param_fields():
 
 # --- Set Rule Variant Function ---
 def set_rule_variant(idx):
-    """Sets the global parameters AND copies them into Taichi fields."""
+    """Sets the global parameters AND copies them into Taichi fields. Also loads saved density if available."""
     global BIRTH_SUM_RANGES, SURVIVAL_SUM_RANGES, FINAL_DEATH_DEGREES, FINAL_DEATH_DEGREE_RANGES
     global GOL_BIRTH, GOL_SURVIVAL
     global NODE_COLORMAP, NODE_COLOR_NORM_VMIN, NODE_COLOR_NORM_VMAX
     global COLOR_BY_DEGREE, COLOR_BY_ACTIVE_NEIGHBORS
+    global INITIAL_DENSITY
 
     if idx < 0 or idx >= len(rule_params):
         logger.error(f"Invalid rule index {idx}")
@@ -506,6 +545,14 @@ def set_rule_variant(idx):
     logger.info(f"--- Setting Variant {idx}: {rule_name} (Key: {rule_key}) ---")
 
     clear_param_fields()
+    
+    # Load saved density for this rule if available
+    if rule_name in rule_density_map:
+        INITIAL_DENSITY = rule_density_map[rule_name]
+        logger.info(f"  Loaded saved initial density for '{rule_name}': {INITIAL_DENSITY:.3f}")
+    else:
+        INITIAL_DENSITY = DEFAULT_INITIAL_DENSITY
+        logger.info(f"  No saved density for '{rule_name}', using default: {INITIAL_DENSITY:.3f}")
 
     # Reset Global Python Vars
     BIRTH_SUM_RANGES, SURVIVAL_SUM_RANGES, FINAL_DEATH_DEGREES, FINAL_DEATH_DEGREE_RANGES = [], [], [], []
@@ -608,8 +655,9 @@ def set_rule_variant(idx):
         except Exception as e:
             logger.error(f"    ERROR copying Colored Life params to Taichi fields for '{rule_name}': {e}")
 
-# Initialize with the selected (or default) rule
+# Initialize with the selected (or default) rule (this will also load saved density)
 set_rule_variant(selected_rule_idx)
+logger.info(f"Initial rule set to: {rule_names[selected_rule_idx]} with density: {INITIAL_DENSITY:.3f}")
 
 # --- Neighborhood Definition ---
 NUM_NEIGHBORS = 8
@@ -1006,6 +1054,16 @@ def handle_gui():
     # --- Simulation Controls ---
     gui.text("Simulation Controls")
     INITIAL_DENSITY = gui.slider_float("Init Density", INITIAL_DENSITY, 0.01, 1.0)
+    
+    # Save Init Density button
+    if gui.button("Save Init Density"):
+        current_rule_name = rule_names[selected_rule_idx]
+        rule_density_map[current_rule_name] = INITIAL_DENSITY
+        if save_rule_densities(rule_density_map):
+            logger.info(f"Saved density {INITIAL_DENSITY:.3f} for rule '{current_rule_name}'")
+        else:
+            logger.error(f"Failed to save density for rule '{current_rule_name}'")
+    
     speed_slider_value = gui.slider_float("Speed (steps/sec)", speed_slider_value, 1.0, 240.0)
     STEP_DELAY = 1.0 / max(speed_slider_value, 1.0)
     if gui.button("Pause" if not paused else "Resume"):
@@ -1782,7 +1840,6 @@ while window.running:
             canvas.set_image(np.zeros((WINDOW_SIZE, WINDOW_SIZE, 3), dtype=np.uint8))
 
     # --- Info Display ---
-    # ... (info display code remains the same) ...
     control_height = 0.38
     info_y = 0.01 + control_height + 0.01
     gui.begin("Info", 0.01, info_y, 0.3, 0.18)
@@ -1792,7 +1849,12 @@ while window.running:
     gui.text(f"Pan: ({pan_x:.2f}, {pan_y:.2f})")
     gui.text(f"Grid Size: {GRID_SIZE}x{GRID_SIZE}")
     gui.text(f"Paused: {paused}")
-    gui.text(f"Init Density: {INITIAL_DENSITY:.2f}")
+    
+    # Show if density is saved for current rule
+    current_rule_name = rule_names[selected_rule_idx]
+    density_status = "*" if current_rule_name in rule_density_map else ""
+    gui.text(f"Init Density: {INITIAL_DENSITY:.2f}{density_status}")
+    
     gui.text(f"Speed (steps/sec): {speed_slider_value:.1f}")
     gui.text(f"Render Edges: {RENDER_EDGES}")
     gui.text(f"Highlight Changes: {HIGHLIGHT_CHANGES}")

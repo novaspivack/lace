@@ -1,0 +1,125 @@
+{
+  "schemes": [
+    {
+      "name": "Dark Skies",
+      "background": "#150f1e",
+      "node_base": "#2a1f3d",
+      "node": "#dad6db",
+      "new_node": "#fd1441",
+      "default_edge": "#391fce",
+      "new_edge": "#28f51d",
+      "is_dark": true
+    },
+    {
+      "name": "Steel",
+      "background": "#fafbf5",
+      "node_base": "#e0e1dc",
+      "node": "#76799f",
+      "new_node": "#ea1015",
+      "default_edge": "#341eb5",
+      "new_edge": "#06a841",
+      "is_dark": false
+    },
+    {
+      "name": "Stark",
+      "background": "#131f25",
+      "node_base": "#263840",
+      "node": "#d2d9e0",
+      "new_node": "#e04738",
+      "default_edge": "#151ee2",
+      "new_edge": "#2ceb44",
+      "is_dark": true
+    },
+    {
+      "name": "Wintogreen",
+      "background": "#f0fcf4",
+      "node_base": "#d8e4dc",
+      "node": "#48909e",
+      "new_node": "#fc1830",
+      "default_edge": "#1a1af2",
+      "new_edge": "#31cd2b",
+      "is_dark": false
+    },
+    {
+      "name": "Glow",
+      "background": "#0d0f24",
+      "node_base": "#fefb00",
+      "node": "#ff9f1d",
+      "new_node": "#bb0007",
+      "default_edge": "#f58c1b",
+      "new_edge": "#ff0040",
+      "is_dark": true
+    },
+    {
+      "name": "Zing",
+      "background": "#000000",
+      "node_base": "#ff9200",
+      "node": "#00e1ff",
+      "new_node": "#ff301a",
+      "default_edge": "#00f0ff",
+      "new_edge": "#ff002b",
+      "is_dark": true
+    },
+    {
+      "name": "Red Alert",
+      "background": "#040c30",
+      "node_base": "#0f1a4d",
+      "node": "#34dfdb",
+      "new_node": "#ff00ff",
+      "default_edge": "#ff5e00",
+      "new_edge": "#ff002b",
+      "is_dark": true
+    },
+    {
+      "name": "Starry Night",
+      "background": "#130d25",
+      "node_base": "#fefb00",
+      "node": "#ff9200",
+      "new_node": "#d60016",
+      "default_edge": "#5e4cff",
+      "new_edge": "#dbcb00",
+      "is_dark": true
+    },
+    {
+      "name": "Slime",
+      "background": "#133a25",
+      "node_base": "#22ff3d",
+      "node": "#4545e4",
+      "new_node": "#d6e516",
+      "default_edge": "#5d4cff",
+      "new_edge": "#dbdc00",
+      "is_dark": true
+    },
+    {
+      "name": "Soothing",
+      "background": "#000000",
+      "node_base": "#baa827",
+      "node": "#00d8ff",
+      "new_node": "#ff0000",
+      "default_edge": "#0000ff",
+      "new_edge": "#ffff00",
+      "is_dark": true
+    },
+    {
+      "name": "Default",
+      "background": "#feffff",
+      "node_base": "#1700ff",
+      "node": "#00fcff",
+      "new_node": "#ff301a",
+      "default_edge": "#0f1c80",
+      "new_edge": "#ff002b",
+      "is_dark": false
+    },
+    {
+      "name": "Greon",
+      "background": "#feffff",
+      "node_base": "#00f800",
+      "node": "#1a24ff",
+      "new_node": "#ff301a",
+      "default_edge": "#0f1c80",
+      "new_edge": "#ff002b",
+      "is_dark": false
+    }
+  ],
+  "current_scheme": "Zing"
+}
