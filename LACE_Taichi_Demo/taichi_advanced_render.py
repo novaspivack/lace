@@ -312,12 +312,12 @@ try:
             JSON_FILE_PATH = os.path.join(main_rules_dir, 'rules.json')
             logger.info(f"Using main LACE rules file path: {JSON_FILE_PATH}")
         except Exception as lace_path_err:
-            logger.error(f"Error constructing main LACE rules path: {lace_path_err}. Using hardcoded fallback.")
-            JSON_FILE_PATH = '/Users/nova/My Drive (nova@novaspivack.com)/Works in Progress/Python/LACE - NEW - In progress/LACE/Resources/config/rules/rules.json'
+            logger.error(f"Error constructing main LACE rules path: {lace_path_err}. Cannot locate rules file.")
+            JSON_FILE_PATH = None
 
 except Exception as e:
-    logger.error(f"Error determining JSON_FILE_PATH: {e}. Using hardcoded fallback path.")
-    JSON_FILE_PATH = '/Users/nova/My Drive (nova@novaspivack.com)/Works in Progress/Python/LACE - NEW - In progress/LACE/Resources/config/rules/rules.json'
+    logger.error(f"Error determining JSON_FILE_PATH: {e}. Cannot locate rules file.")
+    JSON_FILE_PATH = None
 
 # Initialize empty lists first
 rule_names = []
@@ -326,8 +326,13 @@ rule_params = []
 RULE_VARIANTS = []
 
 # Load rules and create variants list
-all_json_rules = load_rules_from_json(JSON_FILE_PATH) # Functions are now defined above
-RULE_VARIANTS = parse_rule_variants(all_json_rules) # Functions are now defined above
+if JSON_FILE_PATH:
+    all_json_rules = load_rules_from_json(JSON_FILE_PATH) # Functions are now defined above
+    RULE_VARIANTS = parse_rule_variants(all_json_rules) # Functions are now defined above
+else:
+    logger.warning("No valid JSON_FILE_PATH found. Will use fallback rules.")
+    all_json_rules = []
+    RULE_VARIANTS = []
 
 # Load saved density settings for rules
 rule_density_map = load_rule_densities()  # Load saved densities

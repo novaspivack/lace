@@ -114,9 +114,10 @@ logger = setup_logging(APP_PATHS['logs'])
 # --- End Logging Configuration ---
 
 # --- JSON Loading and Rule Variant Processing ---
-# <<< IMPORTANT: Set the correct path to your rules.json file here >>>
-JSON_FILE_PATH = '/Users/nova/My Drive (nova@novaspivack.com)/Works in Progress/Python/LACE - NEW - In progress/LACE/Resources/config/rules/rules.json'
-# <<< --- >>>
+# Construct path dynamically relative to this script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(script_dir)
+JSON_FILE_PATH = os.path.join(parent_dir, 'LACE', 'Resources', 'config', 'rules', 'rules.json')
 
 def load_rules_from_json(filepath):
     """Loads rule definitions from a JSON file."""
