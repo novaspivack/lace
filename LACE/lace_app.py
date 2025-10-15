@@ -9135,6 +9135,8 @@ class SimulationController(Observable):
             try: rule_data = RuleLibraryManager.get_rule(rule_name)
             except ValueError as e: logger.error(f"Error loading rule {rule_name}: {e}"); raise
             metadata_dict = {k: v for k, v in rule_data.items() if k != 'params' and k != '_ignored_params'}
+            # Ensure the name field is set to the requested rule_name (critical for rule variants)
+            metadata_dict['name'] = rule_name
             metadata_dict.setdefault('position', 1); metadata_dict.setdefault('category', 'Unknown'); metadata_dict.setdefault('author', GlobalSettings.Defaults.DEFAULT_AUTHOR); metadata_dict.setdefault('url', GlobalSettings.Defaults.DEFAULT_URL); metadata_dict.setdefault('email', GlobalSettings.Defaults.DEFAULT_EMAIL); metadata_dict.setdefault('date_created', datetime.now().strftime("%Y-%m-%d")); metadata_dict.setdefault('date_modified', datetime.now().strftime("%Y-%m-%d")); metadata_dict.setdefault('version', '1.0'); metadata_dict.setdefault('description', 'No description available.'); metadata_dict.setdefault('tags', []); metadata_dict.setdefault('dimension_compatibility', ["TWO_D", "THREE_D"]); metadata_dict.setdefault('neighborhood_compatibility', []); metadata_dict.setdefault('parent_rule', None); metadata_dict.setdefault('rating', None); metadata_dict.setdefault('notes', None); metadata_dict.setdefault('allowed_initial_conditions', ["Random"]); metadata_dict.setdefault('allow_rule_tables', True); metadata_dict.setdefault('favorite', False)
             metadata = RuleMetadata(**metadata_dict) # Create metadata object
             try: self.rule = RuleLibrary.create_rule(rule_name, metadata)
