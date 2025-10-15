@@ -36526,7 +36526,9 @@ class Initializer(threading.Thread):
                 # If no preset was applied, initialize using the rule's default
                 if controller.rule:
                     controller.rule.initialize_grid_state(grid)
-                    logger.info(f"Applied state using rule '{controller.rule.name}'.")
+                    active_count = len(grid.active_nodes) if hasattr(grid, 'active_nodes') else np.count_nonzero(grid.grid_array)
+                    edge_count = len(grid.edges) if hasattr(grid, 'edges') else 0
+                    logger.info(f"Applied state using rule '{controller.rule.name}'. Grid now has {active_count} active nodes, {edge_count} edges.")
                 else:
                     logger.error("Cannot initialize grid state: controller.rule is None.")
                     raise RuntimeError("Rule object not created during initialization.")
@@ -36535,7 +36537,9 @@ class Initializer(threading.Thread):
             # [ Setup Shared Memory - Unchanged ]
             logger.debug("Setting up shared memory...")
             grid.setup_shared_memory()
-            logger.info("Shared memory setup complete.")
+            active_count_after_shared = len(grid.active_nodes) if hasattr(grid, 'active_nodes') else np.count_nonzero(grid.grid_array)
+            edge_count_after_shared = len(grid.edges) if hasattr(grid, 'edges') else 0
+            logger.info(f"Shared memory setup complete. Grid still has {active_count_after_shared} active nodes, {edge_count_after_shared} edges.")
 
             result["initial_rule_name"] = initial_rule_name
             result["active_preset_name"] = active_preset_name_for_gui
