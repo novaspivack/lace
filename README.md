@@ -200,131 +200,41 @@ Mouse & Keyboard Controls:
 
 ## Gallery
 
-Simulation captures showcasing various rules (oldest to newest). GitHub will render these as playable videos:
+Video captures showcasing various simulation rules. Click links to view videos (chronological order):
 
 ### Realm of Lace Unified
 
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155740.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155821.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155914.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace%20Unified_20251015_165309.mp4
+- [📹 Capture 1](LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155740.mp4) • [📹 Capture 2](LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155821.mp4) • [📹 Capture 3](LACE/Captures/Realm%20of%20Lace%20Unified_20251015_155914.mp4) • [📹 Capture 4](LACE/Captures/Realm%20of%20Lace%20Unified_20251015_165309.mp4)
 
 ### Lace Life with Edges
 
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_160125.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_160313.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165509.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165613.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165732.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_165848.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_170132.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Lace%20Life%20with%20Edges_20251015_170648.mp4
+- [📹 Capture 1](LACE/Captures/Lace%20Life%20with%20Edges_20251015_160125.mp4) • [📹 Capture 2](LACE/Captures/Lace%20Life%20with%20Edges_20251015_160313.mp4) • [📹 Capture 3](LACE/Captures/Lace%20Life%20with%20Edges_20251015_165509.mp4) • [📹 Capture 4](LACE/Captures/Lace%20Life%20with%20Edges_20251015_165613.mp4)
+- [📹 Capture 5](LACE/Captures/Lace%20Life%20with%20Edges_20251015_165732.mp4) • [📹 Capture 6](LACE/Captures/Lace%20Life%20with%20Edges_20251015_165848.mp4) • [📹 Capture 7](LACE/Captures/Lace%20Life%20with%20Edges_20251015_170132.mp4) • [📹 Capture 8](LACE/Captures/Lace%20Life%20with%20Edges_20251015_170648.mp4)
 
 ### Edge Feedback Life
 
-https://user-images.githubusercontent.com/LACE/Captures/Edge%20Feedback%20Life_20251015_162224.mp4
+- [📹 Capture 1](LACE/Captures/Edge%20Feedback%20Life_20251015_162224.mp4) • [📹 Capture 2](LACE/Captures/Edge%20Feedback%20Life_20251015_162246.mp4) • [📹 Capture 3](LACE/Captures/Edge%20Feedback%20Life_20251015_162645.mp4)
 
-https://user-images.githubusercontent.com/LACE/Captures/Edge%20Feedback%20Life_20251015_162246.mp4
+### Other Rule Types
 
-https://user-images.githubusercontent.com/LACE/Captures/Edge%20Feedback%20Life_20251015_162645.mp4
-
-### Life with Continuous Edges
-
-https://user-images.githubusercontent.com/LACE/Captures/Life%20with%20Continuous%20Edges_20251015_162321.mp4
-
-### Life with Color
-
-https://user-images.githubusercontent.com/LACE/Captures/Life%20with%20Color_20251015_162414.mp4
-
-### Life with Dynamic Edges
-
-https://user-images.githubusercontent.com/LACE/Captures/Life%20with%20Dynamic%20Edges_20251015_162434.mp4
-
-### Weighted Edge Influence Life
-
-https://user-images.githubusercontent.com/LACE/Captures/Weighted%20Edge%20Influence%20Life_20251015_162727.mp4
-
-### Network Topology Life
-
-https://user-images.githubusercontent.com/LACE/Captures/Network%20Topology%20Life_20251015_162747.mp4
+- **Life with Continuous Edges:** [📹 View](LACE/Captures/Life%20with%20Continuous%20Edges_20251015_162321.mp4)
+- **Life with Color:** [📹 View](LACE/Captures/Life%20with%20Color_20251015_162414.mp4)
+- **Life with Dynamic Edges:** [📹 View](LACE/Captures/Life%20with%20Dynamic%20Edges_20251015_162434.mp4)
+- **Weighted Edge Influence Life:** [📹 View](LACE/Captures/Weighted%20Edge%20Influence%20Life_20251015_162727.mp4)
+- **Network Topology Life:** [📹 View](LACE/Captures/Network%20Topology%20Life_20251015_162747.mp4)
+- **Configurable Continuous Life:** [📹 View](LACE/Captures/Configurable%20Continuous%20Life_20251015_164910.mp4)
+- **Multi-State Life with Edges:** [📹 View](LACE/Captures/Multi-State%20Life%20with%20Edges_20251015_165135.mp4)
+- **Resource Competition Life:** [📹 View](LACE/Captures/Resource%20Competition%20Life_20251015_165223.mp4)
 
 ### Realm of Lace
 
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162801.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162836.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162907.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_162946.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163008.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163027.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163102.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163222.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163259.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163338.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163431.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163600.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163645.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163709.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163753.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163821.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_163921.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164017.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164116.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164211.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164318.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164356.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164429.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164516.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164614.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164714.mp4
-
-https://user-images.githubusercontent.com/LACE/Captures/Realm%20of%20Lace_20251015_164829.mp4
-
-### Configurable Continuous Life
-
-https://user-images.githubusercontent.com/LACE/Captures/Configurable%20Continuous%20Life_20251015_164910.mp4
-
-### Multi-State Life with Edges
-
-https://user-images.githubusercontent.com/LACE/Captures/Multi-State%20Life%20with%20Edges_20251015_165135.mp4
-
-### Resource Competition Life
-
-https://user-images.githubusercontent.com/LACE/Captures/Resource%20Competition%20Life_20251015_165223.mp4
+- [📹 Capture 1](LACE/Captures/Realm%20of%20Lace_20251015_162801.mp4) • [📹 Capture 2](LACE/Captures/Realm%20of%20Lace_20251015_162836.mp4) • [📹 Capture 3](LACE/Captures/Realm%20of%20Lace_20251015_162907.mp4) • [📹 Capture 4](LACE/Captures/Realm%20of%20Lace_20251015_162946.mp4)
+- [📹 Capture 5](LACE/Captures/Realm%20of%20Lace_20251015_163008.mp4) • [📹 Capture 6](LACE/Captures/Realm%20of%20Lace_20251015_163027.mp4) • [📹 Capture 7](LACE/Captures/Realm%20of%20Lace_20251015_163102.mp4) • [📹 Capture 8](LACE/Captures/Realm%20of%20Lace_20251015_163222.mp4)
+- [📹 Capture 9](LACE/Captures/Realm%20of%20Lace_20251015_163259.mp4) • [📹 Capture 10](LACE/Captures/Realm%20of%20Lace_20251015_163338.mp4) • [📹 Capture 11](LACE/Captures/Realm%20of%20Lace_20251015_163431.mp4) • [📹 Capture 12](LACE/Captures/Realm%20of%20Lace_20251015_163600.mp4)
+- [📹 Capture 13](LACE/Captures/Realm%20of%20Lace_20251015_163645.mp4) • [📹 Capture 14](LACE/Captures/Realm%20of%20Lace_20251015_163709.mp4) • [📹 Capture 15](LACE/Captures/Realm%20of%20Lace_20251015_163753.mp4) • [📹 Capture 16](LACE/Captures/Realm%20of%20Lace_20251015_163821.mp4)
+- [📹 Capture 17](LACE/Captures/Realm%20of%20Lace_20251015_163921.mp4) • [📹 Capture 18](LACE/Captures/Realm%20of%20Lace_20251015_164017.mp4) • [📹 Capture 19](LACE/Captures/Realm%20of%20Lace_20251015_164116.mp4) • [📹 Capture 20](LACE/Captures/Realm%20of%20Lace_20251015_164211.mp4)
+- [📹 Capture 21](LACE/Captures/Realm%20of%20Lace_20251015_164318.mp4) • [📹 Capture 22](LACE/Captures/Realm%20of%20Lace_20251015_164356.mp4) • [📹 Capture 23](LACE/Captures/Realm%20of%20Lace_20251015_164429.mp4) • [📹 Capture 24](LACE/Captures/Realm%20of%20Lace_20251015_164516.mp4)
+- [📹 Capture 25](LACE/Captures/Realm%20of%20Lace_20251015_164614.mp4) • [📹 Capture 26](LACE/Captures/Realm%20of%20Lace_20251015_164714.mp4) • [📹 Capture 27](LACE/Captures/Realm%20of%20Lace_20251015_164829.mp4)
 
 ## License
 
