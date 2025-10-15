@@ -34111,8 +34111,10 @@ class SimulationGUI(Observer, Observable):
         self._add_edges_on_shape_place = add_default_edges
         
         logger.info(f"Shape placement mode activated for '{selected_shape_def.name}'. Click on canvas to place. Press ESC to cancel.")
-        if hasattr(self, 'status_label') and self.status_label:
-            self.status_label.config(text=f"Click to place '{selected_shape_def.name}' (ESC to cancel)")
+        if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+            status_label = self.control_panel_ui.widgets.get('buffering_status_label')
+            if status_label:
+                status_label.config(text=f"Click to place '{selected_shape_def.name}' (ESC to cancel)")
         
         return  # Don't place immediately, wait for click
 
@@ -34159,8 +34161,10 @@ class SimulationGUI(Observer, Observable):
                     logger.debug("Shape placement attempt finished, visualization updated.")
                     
                     # Keep placement mode active so user can place multiple copies
-                    if hasattr(self, 'status_label') and self.status_label:
-                        self.status_label.config(text=f"Placed '{selected_shape_def.name}'. Click to place more, ESC to cancel.")
+                    if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                        status_label = self.control_panel_ui.widgets.get('buffering_status_label')
+                        if status_label:
+                            status_label.config(text=f"Placed '{selected_shape_def.name}'. Click again or ESC to cancel.")
                 else:
                     logger.warning("Placement cancelled or failed in place_shape_definition.")
                     # Pop the potentially incorrect undo state
@@ -34185,8 +34189,10 @@ class SimulationGUI(Observer, Observable):
             self.active_tool = None
             self._shape_to_place = None
             self._add_edges_on_shape_place = False
-            if hasattr(self, 'status_label') and self.status_label:
-                self.status_label.config(text="Shape placement cancelled.")
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                status_label = self.control_panel_ui.widgets.get('buffering_status_label')
+                if status_label:
+                    status_label.config(text="Shape placement cancelled.")
         
 
     def _add_default_edges_to_selection(self):
