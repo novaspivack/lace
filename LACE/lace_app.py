@@ -34475,11 +34475,17 @@ class SimulationGUI(Observer, Observable):
                 # Save frames as video using matplotlib animation
                 from matplotlib.animation import FuncAnimation, FFMpegWriter
                 
-                fig_temp = Figure(figsize=self.fig.get_size_inches(), dpi=100)
+                # Calculate figure size from frame dimensions
+                frame_height, frame_width = frames_to_save[0].shape[:2]
+                dpi = 100
+                fig_temp = Figure(figsize=(frame_width / dpi, frame_height / dpi), dpi=dpi)
                 ax_temp = fig_temp.add_subplot(111)
+                ax_temp.set_position([0, 0, 1, 1])  # Fill entire figure
                 ax_temp.axis('off')
+                ax_temp.set_xlim(0, frame_width)
+                ax_temp.set_ylim(frame_height, 0)  # Invert y-axis
                 
-                im = ax_temp.imshow(frames_to_save[0])
+                im = ax_temp.imshow(frames_to_save[0], extent=[0, frame_width, frame_height, 0], aspect='auto')
                 
                 def update_frame(frame_idx):
                     im.set_array(frames_to_save[frame_idx])
