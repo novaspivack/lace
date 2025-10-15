@@ -35730,11 +35730,13 @@ class SimulationGUI(Observer, Observable):
             else: logger.warning(f"{log_prefix}No display corners, using default limits."); new_xlim=(-10,10); new_ylim=(-10,10)
 
             self.ax.set_xlim(*new_xlim); self.ax.set_ylim(*new_ylim)
+            # Invert y-axis so grid i=0 (top) appears at top of display
+            self.ax.invert_yaxis()
             if new_zlim: self.ax.set_zlim(new_zlim) # type: ignore
             self._view_state['xlim'] = new_xlim; self._view_state['ylim'] = new_ylim; self._view_state['zlim'] = new_zlim
             self._view_state['zoom_factor'] = 1.0 # Reset zoom
             self.grid_visualizer._visualization_state['zoom_factor'] = 1.0 # Reset visualizer zoom
-            logger.debug(f"{log_prefix}Set initial limits and view state.")
+            logger.debug(f"{log_prefix}Set initial limits and view state (y-axis inverted).")
 
             # --- 4. Force Draw of EMPTY Axes and Capture CLEAN Background ---
             if self.grid_visualizer.blitting_manager.enabled:
