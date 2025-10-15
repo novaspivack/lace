@@ -100,6 +100,10 @@ LACE/Resources/profiles/*
 LACE/Resources/reports/*
 !LACE/Resources/reports/.gitkeep
 
+# LACE-specific: Exclude screen captures but keep directory structure
+LACE/Captures/*
+!LACE/Captures/.gitkeep
+
 # LACE-specific: Exclude backup files (hundreds of timestamped backups)
 LACE/Resources/config/rules_backups/
 LACE/Resources/config/presets_backups/
