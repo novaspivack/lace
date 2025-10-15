@@ -41,7 +41,7 @@ _CREATING_DEFAULT_LIBRARY = False
 class GlobalSettings:
 
     class Defaults:
-        DEFAULT_RULE = "Lace Life with Edges"  # Initial rule displayed on startup.
+        DEFAULT_RULE = "Realm of Lace with Metrics_Betweenness_Amazing_Dragons_Wow"  # Initial rule displayed on startup.
         NUM_SIMILAR_RULES = 3 # what does this do and are we using it? # Kept as is
 
         # Default rule author info (used for new rules)
