@@ -18250,7 +18250,7 @@ class GridVisualizer(Observer):
                     if self.grid and self.grid.dimension_type == Dimension.TWO_D: self.ax.set_aspect('equal', adjustable='box')
                     elif self.grid and self.grid.dimension_type == Dimension.THREE_D:
                          if 'zlim' in self.gui._view_state and self.gui._view_state['zlim']: self.ax.set_zlim(self._view_state['zlim']) # type: ignore
-                         self.ax.set_box_aspect([1, 1, 1]) # type: ignore [reportArgumentType]
+                         self.ax.set_box_aspect(None) # type: ignore
                 else: logger.warning(f"{log_prefix}Cannot restore limits: self.gui._view_state not found.")
 
                 # 3. Call DRAW methods, WITHOUT passing selection
@@ -18329,7 +18329,8 @@ class GridVisualizer(Observer):
                     azim = self.gui._view_state.get('azim', 45)
                     self.ax.view_init(elev=elev, azim=azim) # type: ignore
             else: logger.warning(f"{log_prefix}Cannot restore limits/view: self.gui._view_state not found.")
-            self.ax.set_box_aspect([1, 1, 1])
+            if isinstance(self.ax, Axes3DType):
+                self.ax.set_box_aspect(None)  # type: ignore
 
             # [ Prepare data args ]
             indices = plot_data.get('indices', np.array([], dtype=int))
@@ -18483,8 +18484,8 @@ class GridVisualizer(Observer):
         self.ax.set_xticks([]); self.ax.set_yticks([])
         if hasattr(self.ax, 'set_zticks'): self.ax.set_zticks([]) # type: ignore
         self.ax.set_axis_off()
-        if self.grid.dimension_type == Dimension.THREE_D:
-            self.ax.set_box_aspect([1, 1, 1]) # type: ignore [reportArgumentType]
+        if self.grid.dimension_type == Dimension.THREE_D and isinstance(self.ax, Axes3DType):
+            self.ax.set_box_aspect(None) # type: ignore
         else:
             self.ax.set_aspect('equal', adjustable='box')
         logger.debug(f"{log_prefix}Axes properties set.")
@@ -22201,7 +22202,7 @@ class SimulationGUI(Observer, Observable):
                     elev = getattr(self, '_current_elev', 30); azim = getattr(self, '_current_azim', 45)
                     # Ensure self.ax is an Axes3DType before calling view_init
                     if isinstance(self.ax, Axes3DType):
-                        self.ax.view_init(elev=elev, azim=azim)
+                        self.ax.view_init(elev=elev, azim=azim) # type:ignore
                     else:
                         logger.warning("self.ax is not an instance of Axes3DType. Skipping view initialization.")
                     self.ax.set_box_aspect(1.0)
@@ -24786,9 +24787,9 @@ class SimulationGUI(Observer, Observable):
                 # Ensure self.ax is an instance of Axes3DType before calling 3D-specific methods
                 if isinstance(self.ax, Axes3DType):
                     if hasattr(self, '_current_elev') and hasattr(self, '_current_azim'):
-                        self.ax.view_init(elev=self._current_elev, azim=self._current_azim)
+                        self.ax.view_init(elev=self._current_elev, azim=self._current_azim) # type:ignore
                     if hasattr(self.ax, 'set_box_aspect'):  # Check if set_box_aspect is available
-                        self.ax.set_box_aspect([1, 1, 1])  # Set aspect ratio
+                        self.ax.set_box_aspect(None)  # type: ignore
                     else:
                         logger.warning("set_box_aspect is not available in this version of Matplotlib.")
                 else:
@@ -26402,9 +26403,9 @@ class SimulationGUI(Observer, Observable):
                 self.ax = self.fig.add_subplot(111, projection='3d')
                 if isinstance(self.ax, Axes3DType):  # Ensure self.ax is an Axes3DType
                     if hasattr(self, '_current_elev') and hasattr(self, '_current_azim'):
-                        self.ax.view_init(elev=self._current_elev, azim=self._current_azim)
+                        self.ax.view_init(elev=self._current_elev, azim=self._current_azim) # type:ignore
                     if hasattr(self.ax, 'set_box_aspect'):  # Check if set_box_aspect is available
-                        self.ax.set_box_aspect([1, 1, 1])  # Set aspect ratio
+                        self.ax.set_box_aspect(None)  # type: ignore
                     else:
                         logger.warning("set_box_aspect is not available in this version of Matplotlib.")
                     logger.debug("Created 3D axes")
@@ -35140,11 +35141,11 @@ class SimulationGUI(Observer, Observable):
                 if isinstance(self.ax, Axes3DType):  # Ensure self.ax is an Axes3DType
                     self._current_azim = 0
                     self._current_elev = 30
-                    self.ax.view_init(elev=self._current_elev, azim=self._current_azim)
+                    self.ax.view_init(elev=self._current_elev, azim=self._current_azim) # type:ignore
                     
                     # Check if set_box_aspect is available (introduced in Matplotlib 3.4+)
-                    if hasattr(self.ax, 'set_box_aspect'):
-                        self.ax.set_box_aspect([1, 1, 1])  # Set equal aspect ratio
+                    if hasattr(self.ax, 'set_box_aspect') and isinstance(self.ax, Axes3DType):
+                        self.ax.set_box_aspect(None)  # type: ignore
                     else:
                         logger.warning("set_box_aspect is not available in this version of Matplotlib.")
                 else:
@@ -35169,11 +35170,11 @@ class SimulationGUI(Observer, Observable):
             if isinstance(self.ax, Axes3DType):  # Ensure self.ax is an Axes3DType
                 self._current_azim = 0
                 self._current_elev = 30
-                self.ax.view_init(elev=self._current_elev, azim=self._current_azim)
+                self.ax.view_init(elev=self._current_elev, azim=self._current_azim) # type:ignore
                 
                 # Check if set_box_aspect is available (introduced in Matplotlib 3.4+)
-                if hasattr(self.ax, 'set_box_aspect'):
-                    self.ax.set_box_aspect([1, 1, 1])  # Set equal aspect ratio
+                if hasattr(self.ax, 'set_box_aspect') and isinstance(self.ax, Axes3DType):
+                    self.ax.set_box_aspect(None)  # type: ignore
                 else:
                     logger.warning("set_box_aspect is not available in this version of Matplotlib.")
             else:
@@ -35620,8 +35621,8 @@ class SimulationGUI(Observer, Observable):
             self.ax.set_xticks([]); self.ax.set_yticks([])
             if hasattr(self.ax, 'set_zticks'): self.ax.set_zticks([]) # type: ignore
             self.ax.set_axis_off()
-            if self.grid.dimension_type == Dimension.THREE_D:
-                self.ax.set_box_aspect([1, 1, 1]) # type: ignore [reportArgumentType]
+            if self.grid.dimension_type == Dimension.THREE_D and isinstance(self.ax, Axes3DType):
+                self.ax.set_box_aspect(None) # type: ignore
             else:
                 self.ax.set_aspect('equal', adjustable='box')
             logger.debug(f"{log_prefix}Axes cleared and properties set.")
