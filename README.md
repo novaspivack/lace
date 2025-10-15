@@ -15,7 +15,7 @@ LACE extends traditional cellular automata (like Conway's Game of Life) by treat
 
 - 🎨 **182 Built-in Rules** including classic Game of Life and novel "Realm of Lace" variants
 - 🎯 **Multiple Rule Types**: Standard Life-like, Network CA, Metric-based, and more
-- 🌐 **2D Support** with multiple coordinate systems (3D support partially implemented; needs further )
+- 🌐 **2D Support** with multiple coordinate systems (3D support partially implemented; needs further work before available)
 - 📊 **Real-time Analytics** with customizable metrics
 - 🎨 **Flexible Visualization** with 21 color schemes
 - 💾 **4,795 Shape Library** (via Git LFS)
@@ -117,6 +117,86 @@ The signature "Realm of Lace" family of rules uses:
 - **Survival conditions**: Based on sum of neighbor degrees  
 - **Death conditions**: Specific degree counts that cause node death
 - **Eligibility**: Nodes must meet conditions to form connections
+
+
+## Grid Editing
+
+You can edit the grid - it's a little buggy and still needs some work but here are the basic controls...
+
+To activate edit mode right click on the canvas.
+
+Mouse & Keyboard Controls:
+
+        --- Canvas Interaction ---
+
+        Left Click: Toggle node On/Off (or activate/deactivate)
+
+        Left Drag: Scribble Draw (activate nodes, connect new binary edges if rule supports)
+
+        Shift + Left Drag: Scribble Erase (deactivate nodes, remove connected edges)
+
+        Ctrl/Cmd + Left Drag: Scribble Delete Edges (remove edges along path)
+
+        Alt/Opt + Left Click: Increment Node State (+10% Real) [Only for REAL state rules]
+
+        Alt/Opt + Left Drag: Scribble Increment Node/Edge State (+10% Real) [Only for REAL state rules]
+
+        Alt/Opt+Shift + L Click: Decrement Node State (-10% Real) [Only for REAL state rules]
+
+        Alt/Opt+Shift + L Drag: Scribble Decrement Node/Edge State (-10% Real, removes edge if state reaches minimum) [Only for REAL state rules]
+
+        Right Click: Open Context Menu
+
+        Mouse Wheel: Pan View (Vertical)
+
+        Shift + Mouse Wheel: Pan View (Horizontal - OS/driver dependent)
+
+        Ctrl/Cmd + Mouse Wheel: Zoom View (not implemented yet)
+
+        --- Keyboard Shortcuts ---
+
+        Spacebar: Start/Pause Simulation (not implemented yet)
+
+        S: Step Simulation Once (not implemented yet)
+
+        R: Reset Simulation (not implemented yet)
+
+        C: Toggle Control Panel Visibility (not implemented yet)
+
+        L: Open Shape Library & Editor (not implemented yet)
+
+        Ctrl/Cmd + Z: Undo Grid Action (not implemented yet)
+
+        Ctrl/Cmd + Y / Ctrl+Shift+Z: Redo Grid Action (not implemented yet)
+
+        Ctrl/Cmd + S: Save Simulation State (not implemented yet)
+
+        Ctrl/Cmd + O: Load Simulation State (not implemented yet)
+
+        Ctrl/Cmd + N: Create New Preset (not implemented yet)
+
+        Ctrl/Cmd + M: Manage Presets (not implemented yet)
+
+        Ctrl/Cmd + E: Edit Current Rule (not implemented yet)
+
+        Ctrl/Cmd + L: Open Shape Library & Editor (Duplicate - not implemented yet)
+
+        Ctrl/Cmd + C: Copy Selection (not implemented yet)
+
+        Ctrl/Cmd + X: Cut Selection (not implemented yet)
+
+        Ctrl/Cmd + V: Paste Selection Here (not implemented yet)
+
+        Delete/Backspace: Erase Selected Nodes (not implemented yet)
+
+        Ctrl/Cmd + Delete/Backspace: Delete Edges Within Selection (not implemented yet)
+
+        Ctrl/Cmd + A: Select All Active Nodes (not implemented yet)
+
+        Escape: Deselect All / Cancel Tool Action (not implemented yet)
+
+        (Note: Alt = Alt on Win/Lin, Option on macOS)
+
 
 ## License
 
