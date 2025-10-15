@@ -535,7 +535,7 @@ class RealmOfLace(Rule):
         metadata.neighborhood_compatibility = ["MOORE", "VON_NEUMANN", "HEX", "HEX_PRISM"]
         metadata.dimension_compatibility = ["TWO_D", "THREE_D"]
         super().__init__(metadata)
-        self.name = "Realm of Lace"
+        # Note: self.name is set by parent Rule.__init__ from metadata.name
         self._params = {}
         self.requires_post_edge_state_update = True # Requires final degree calculation
         self.needs_neighbor_degrees = True
@@ -1103,8 +1103,8 @@ class RealmOfLaceUnified(Rule):
 
         # Call the base Rule's __init__
         super().__init__(metadata)
-        self.name = "Realm of Lace Unified" # Ensure name is set correctly
-
+        # Note: self.name is set by parent Rule.__init__ from metadata.name
+        
         # --- Initialize flags directly ---
         self.requires_post_edge_state_update = True
         # Needs degrees for DEGREE, CLUSTERING, BETWEENNESS, SYMMETRY_DEGREE, VARIANCE, STDDEV
