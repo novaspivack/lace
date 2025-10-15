@@ -7440,8 +7440,16 @@ class ViewManager:
                     self._last_drag_grid_coord = start_node_coords
                     if not hasattr(self, '_modified_in_drag'): self._modified_in_drag = set() # Ensure it exists
 
-            # Tool-based logic (unchanged)
-            elif active_tool == "lasso": self._handle_lasso_start(x_data, y_data); self._mouse_mode = 'lasso_select'; self.panning = False; logger.debug("  Mode set to 'lasso_select', panning=False")
+            # Tool-based logic
+            elif active_tool == "lasso":
+                # Check if clicking on selected node -> drag instead of new lasso
+                if start_node_coords and start_node_coords in self.gui.current_selection.get('nodes', set()):
+                    self._mouse_mode = 'drag_selection'
+                    self.gui._dragging_selection = True
+                    self.gui._selection_drag_start = start_node_coords
+                    logger.info(f"  Clicked on selected node with lasso tool -> Mode set to 'drag_selection'. Dragging from {start_node_coords}")
+                else:
+                    self._handle_lasso_start(x_data, y_data); self._mouse_mode = 'lasso_select'; self.panning = False; logger.debug("  Mode set to 'lasso_select', panning=False")
             elif active_tool == "erase": self._handle_erase_press(x_data, y_data); self._mouse_mode = 'erase_action'; self.panning = False; logger.debug("  Mode set to 'erase_action', panning=False")
             elif active_tool == "add_edge": self._handle_add_edge_start(x_data, y_data); self._mouse_mode = 'add_edge_action'; self.panning = False; logger.debug("  Mode set to 'add_edge_action', panning=False")
             elif active_tool == "del_edge": self._handle_del_edge_press(x_data, y_data); self._deleted_edges_in_drag.clear(); self._mouse_mode = 'del_edge_action'; self.panning = False; logger.debug("  Mode set to 'del_edge_action', panning=False")
@@ -34229,18 +34237,17 @@ class SimulationGUI(Observer, Observable):
     
     def _ensure_yaxis_inverted(self):
         """Ensure y-axis is inverted so grid i=0 appears at top of display.
-        Checks current state to avoid double-inversion."""
+        Only inverts once per axes object to avoid flip-flopping."""
         if not hasattr(self, 'ax') or self.ax is None:
             return
         
-        # Check if y-axis is already inverted by checking if ylim[0] > ylim[1]
-        current_ylim = self.ax.get_ylim()
-        if current_ylim[0] < current_ylim[1]:
-            # Y-axis is not inverted (normal: bottom < top), so invert it
+        # Track if we've already inverted THIS specific axes object
+        if not hasattr(self.ax, '_lace_yaxis_inverted'):
             self.ax.invert_yaxis()
+            self.ax._lace_yaxis_inverted = True  # type: ignore
             logger.debug("Y-axis inverted to match grid orientation (i=0 at top)")
         else:
-            logger.debug("Y-axis already inverted, no action needed")
+            logger.debug("Y-axis already inverted for this axes object")
     
     def _move_selection_by_offset(self, offset: Tuple[int, ...]):
         """Move the current selection by the given offset (drag-to-move).
