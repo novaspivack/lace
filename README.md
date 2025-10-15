@@ -1,4 +1,4 @@
-# LACE - Life-like Automata with Connectivity and Edges
+# LACE - Link Automata Computation Engine
 
 A sophisticated cellular automata framework for exploring complex emergent behaviors through network-based rules.
 
