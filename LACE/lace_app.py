@@ -7439,11 +7439,27 @@ class ViewManager:
             elif active_tool == "del_edge": self._handle_del_edge_press(x_data, y_data); self._deleted_edges_in_drag.clear(); self._mouse_mode = 'del_edge_action'; self.panning = False; logger.debug("  Mode set to 'del_edge_action', panning=False")
             elif active_tool == "shape_placement": 
                 # Convert display coords to grid coords and place shape
-                grid_coord = self._find_node_in_click_field(x_data, y_data)
-                if grid_coord:
-                    self.gui._place_shape_at_click(grid_coord)
-                else:
-                    logger.warning("Could not determine grid coordinates for shape placement")
+                # Use direct coordinate conversion (no tolerance check needed for placement)
+                try:
+                    display_coords = (x_data, y_data)
+                    if self.grid.dimension_type == Dimension.THREE_D:
+                        z_min, z_max = self.ax.get_zlim() if hasattr(self.ax, 'get_zlim') else (0, 0)
+                        z_data = (z_min + z_max) / 2
+                        display_coords = (x_data, y_data, z_data)
+                    
+                    grid_coords_float = self.coord_system.display_to_grid(display_coords)
+                    if grid_coords_float:
+                        # Round to nearest grid cell
+                        grid_coord = tuple(int(c + 0.5) for c in grid_coords_float)
+                        # Verify it's within grid bounds
+                        if self.grid.is_valid_coord(grid_coord):
+                            self.gui._place_shape_at_click(grid_coord)
+                        else:
+                            logger.warning(f"Shape placement: Click at {grid_coord} is outside grid bounds")
+                    else:
+                        logger.warning("Could not convert display coordinates to grid coordinates for shape placement")
+                except Exception as e:
+                    logger.error(f"Error during shape placement coordinate conversion: {e}")
                 # Reset all mouse state to prevent release handler from processing this as a click
                 self._mouse_mode = None
                 self._mouse_pressed = False
