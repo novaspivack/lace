@@ -22229,8 +22229,11 @@ class SimulationGUI(Observer, Observable):
                     self.ax.set_box_aspect(1.0)
                 else:
                     self.ax = self.fig.add_subplot(111)
+                    self._ensure_yaxis_inverted()  # Ensure correct orientation for 2D
             else:
                  logger.info("Using Fig/Ax provided by Initializer.")
+                 if self.dimension_type == Dimension.TWO_D:
+                     self._ensure_yaxis_inverted()  # Ensure correct orientation
 
             self.fig.set_facecolor(initial_bg)
             self.ax.set_facecolor(initial_bg)
@@ -23256,6 +23259,7 @@ class SimulationGUI(Observer, Observable):
             self.ax = self.fig.add_subplot(111, projection='3d')
         else:
             self.ax = self.fig.add_subplot(111)
+            self._ensure_yaxis_inverted()  # Ensure correct orientation for 2D
             
         # Configure the axes
         self.ax.set_facecolor(GlobalSettings.Colors.BACKGROUND)
@@ -24817,6 +24821,7 @@ class SimulationGUI(Observer, Observable):
                     logger.error("self.ax is not an instance of Axes3DType. Skipping 3D-specific configurations.")
             else:
                 self.ax = self.fig.add_subplot(111)
+                self._ensure_yaxis_inverted()  # Ensure correct orientation for 2D
                 # CRITICAL: Don't set aspect to 'equal' - this can cause scaling issues
                 # self.ax.set_aspect('equal')
                 logger.debug("Created 2D axes")
@@ -26436,6 +26441,7 @@ class SimulationGUI(Observer, Observable):
                     logger.error("self.ax is not an instance of Axes3DType. Skipping 3D-specific configurations.")
             else:
                 self.ax = self.fig.add_subplot(111)
+                self._ensure_yaxis_inverted()  # Ensure correct orientation for 2D
                 try:
                     self.ax.set_aspect('equal')  # Ensure compatibility for 2D axes
                 except NotImplementedError:
@@ -31559,6 +31565,7 @@ class SimulationGUI(Observer, Observable):
                             logger.info("Created 3D axes with initial view")
                     else:
                         self.ax = self.fig.add_subplot(111)
+                        self._ensure_yaxis_inverted()  # Ensure correct orientation for 2D
                         self.ax.set_aspect('equal', adjustable='box')
                         logger.info("Created 2D axes")
                 
@@ -34193,6 +34200,21 @@ class SimulationGUI(Observer, Observable):
                 status_label = self.control_panel_ui.widgets.get('buffering_status_label')
                 if status_label:
                     status_label.config(text="Shape placement cancelled.")
+    
+    def _ensure_yaxis_inverted(self):
+        """Ensure y-axis is inverted so grid i=0 appears at top of display.
+        Checks current state to avoid double-inversion."""
+        if not hasattr(self, 'ax') or self.ax is None:
+            return
+        
+        # Check if y-axis is already inverted by checking if ylim[0] > ylim[1]
+        current_ylim = self.ax.get_ylim()
+        if current_ylim[0] < current_ylim[1]:
+            # Y-axis is not inverted (normal: bottom < top), so invert it
+            self.ax.invert_yaxis()
+            logger.debug("Y-axis inverted to match grid orientation (i=0 at top)")
+        else:
+            logger.debug("Y-axis already inverted, no action needed")
         
 
     def _add_default_edges_to_selection(self):
@@ -35736,8 +35758,8 @@ class SimulationGUI(Observer, Observable):
             else: logger.warning(f"{log_prefix}No display corners, using default limits."); new_xlim=(-10,10); new_ylim=(-10,10)
 
             self.ax.set_xlim(*new_xlim); self.ax.set_ylim(*new_ylim)
-            # Invert y-axis so grid i=0 (top) appears at top of display
-            self.ax.invert_yaxis()
+            # Ensure y-axis is inverted for correct grid orientation
+            self._ensure_yaxis_inverted()
             if new_zlim: self.ax.set_zlim(new_zlim) # type: ignore
             self._view_state['xlim'] = new_xlim; self._view_state['ylim'] = new_ylim; self._view_state['zlim'] = new_zlim
             self._view_state['zoom_factor'] = 1.0 # Reset zoom
