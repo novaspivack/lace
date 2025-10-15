@@ -757,6 +757,55 @@ class ShapePlacer:
         # --- [End Dimension Handling] ---
 
         logger.debug(f"Final relative coordinates being placed: {projected_relative_coords}")
+        
+        # --- Normalize shape coordinates to start from (0, 0, ...) ---
+        # Get bounding box to find minimum coordinates
+        if projected_relative_coords:
+            min_coord = list(projected_relative_coords[0])
+            max_coord = list(projected_relative_coords[0])
+            for coord in projected_relative_coords:
+                for d in range(len(coord)):
+                    min_coord[d] = min(min_coord[d], coord[d])
+                    max_coord[d] = max(max_coord[d], coord[d])
+            
+            min_coord_tuple = tuple(min_coord)
+            
+            # Normalize all coordinates by subtracting minimum
+            normalized_coords = []
+            for coord in projected_relative_coords:
+                normalized = tuple(coord[d] - min_coord[d] for d in range(len(coord)))
+                normalized_coords.append(normalized)
+            
+            # Also normalize edges
+            if projected_relative_edges:
+                normalized_edges = []
+                for edge in projected_relative_edges:
+                    node1_norm = tuple(edge[0][d] - min_coord[d] for d in range(len(edge[0])))
+                    node2_norm = tuple(edge[1][d] - min_coord[d] for d in range(len(edge[1])))
+                    normalized_edges.append((node1_norm, node2_norm))
+                projected_relative_edges = normalized_edges
+            
+            # Also normalize node_states dictionary keys
+            if projected_node_states:
+                normalized_node_states = {}
+                for coord, state in projected_node_states.items():
+                    normalized = tuple(coord[d] - min_coord[d] for d in range(len(coord)))
+                    normalized_node_states[normalized] = state
+                projected_node_states = normalized_node_states
+            
+            # Also normalize edge_states dictionary keys
+            if projected_edge_states:
+                normalized_edge_states = {}
+                for edge, state in projected_edge_states.items():
+                    node1_norm = tuple(edge[0][d] - min_coord[d] for d in range(len(edge[0])))
+                    node2_norm = tuple(edge[1][d] - min_coord[d] for d in range(len(edge[1])))
+                    normalized_edge_states[(node1_norm, node2_norm)] = state
+                projected_edge_states = normalized_edge_states
+            
+            logger.debug(f"Normalized shape coords from min={min_coord_tuple} max={tuple(max_coord)} to start at (0,0)")
+            projected_relative_coords = normalized_coords
+        # ---
+        
         placed_node_indices = set()
         rel_to_abs_map: Dict[Tuple[int,...], Tuple[int,...]] = {}
         valid_target_coords_absolute = []
