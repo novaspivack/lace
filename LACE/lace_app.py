@@ -116,7 +116,7 @@ if __name__ == "__main__" and __package__ is None:
         sys.path.insert(0, _parent_dir)
 
 # Use absolute imports to work in both modes
-from LACE.logging_config import setup_logging, logging, logger, APP_PATHS, APP_DIR, DETAIL_LEVEL_NUM, setup_directories, LogSettings
+from LACE.logging_config import setup_logging, logging, logger, APP_PATHS, APP_DIR, DETAIL_LEVEL_NUM, setup_directories, LogSettings, BASE_PATH
 from LACE.enums import Dimension, NeighborhoodType, CoordinateSystemType, StateType, TieBreaker
 from LACE.settings import GlobalSettings
 from LACE.interfaces import CoordinateSystem, Rule, NeighborhoodData, Shape, RuleMetadata, BaseMetrics
@@ -18150,6 +18150,10 @@ class GridVisualizer(Observer):
                     selection_to_highlight=self._visualization_state.get('selection_to_highlight', set()) # Pass current selection state
                 )
                 logger.debug(f"{log_prefix} <<< Returned from _update_3d_visualization <<<")
+            
+            # Capture frame for video if recording
+            if hasattr(self, 'gui') and self.gui and hasattr(self.gui, '_recording_video') and self.gui._recording_video:
+                self.gui._capture_video_frame()
 
         except Exception as e:
             logger.error(f"Error updating visualization: {e}")
