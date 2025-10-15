@@ -34106,14 +34106,17 @@ class SimulationGUI(Observer, Observable):
 
                 if placed_indices is not None:
                     if add_default_edges:
-                        logger.info("Add Default Edges checked, adding edges based on shape connectivity.")
+                        logger.info("Add Default Edges checked, adding edges to placed shape.")
+                        # When user explicitly checks "Add Default Edges on Place",
+                        # use 'full' connectivity regardless of shape's connectivity setting
+                        # (except for shapes with explicit edges which already have them)
                         connectivity_to_use = selected_shape_def.connectivity
-                        if connectivity_to_use != "explicit" and connectivity_to_use != "none":
-                            self.grid.shape_placer.add_default_edges(placed_indices, connectivity_to_use)
-                        elif connectivity_to_use == "explicit":
-                             logger.debug("Shape uses explicit edges, not adding default edges.")
-                        else: # connectivity == "none"
-                             logger.debug("Shape connectivity is 'none', not adding default edges.")
+                        if connectivity_to_use == "explicit":
+                            logger.debug("Shape uses explicit edges, they were already placed.")
+                        else:
+                            # Use 'full' connectivity for all other cases
+                            logger.debug(f"Adding 'full' connectivity edges (shape connectivity was '{connectivity_to_use}').")
+                            self.grid.shape_placer.add_default_edges(placed_indices, "full")
                     # Force redraw only if placement wasn't cancelled
                     self._safe_plot_update(force=True)
                     logger.debug("Shape placement attempt finished, visualization updated.")
