@@ -7445,6 +7445,8 @@ class ViewManager:
                 else:
                     logger.warning("Could not determine grid coordinates for shape placement")
                 self._mouse_mode = None; self.panning = False; logger.debug("  Shape placement handled, mode reset")
+                # Prevent further event processing (don't toggle cell at click location)
+                return "break"
             else: logger.warning(f"Unhandled active tool: {active_tool}"); self._mouse_mode = None; self.panning = False; logger.debug("  Mode set to None, panning=False")
 
             self._drag_start_pos = (x_data, y_data)
