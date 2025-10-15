@@ -36523,12 +36523,16 @@ class Initializer(threading.Thread):
                 grid.apply_preset(default_preset_obj)
                 logger.info(f"Applied state from preset '{default_preset_obj.name}'.")
             else:
-                # If no preset was applied, initialize using the rule's default
+                # If no preset was applied, initialize using the rule's density parameters
                 if controller.rule:
-                    controller.rule.initialize_grid_state(grid)
+                    # Get densities from rule parameters (same as reset_simulation does)
+                    node_density_from_rule = controller.rule.get_param('initial_density', GlobalSettings.Simulation.INITIAL_NODE_DENSITY)
+                    edge_init_type_from_rule = controller.rule.get_param('edge_initialization', 'RANDOM')
+                    logger.info(f"Initializing grid with rule '{controller.rule.name}' densities: Node={node_density_from_rule:.3f}, EdgeInit='{edge_init_type_from_rule}'")
+                    grid.initialize_grid(node_density_from_rule, edge_init_type_from_rule)
                     active_count = len(grid.active_nodes) if hasattr(grid, 'active_nodes') else np.count_nonzero(grid.grid_array)
                     edge_count = len(grid.edges) if hasattr(grid, 'edges') else 0
-                    logger.info(f"Applied state using rule '{controller.rule.name}'. Grid now has {active_count} active nodes, {edge_count} edges.")
+                    logger.info(f"Grid initialized with {active_count} active nodes, {edge_count} edges.")
                 else:
                     logger.error("Cannot initialize grid state: controller.rule is None.")
                     raise RuntimeError("Rule object not created during initialization.")
