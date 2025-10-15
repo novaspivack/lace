@@ -31230,7 +31230,7 @@ class SimulationGUI(Observer, Observable):
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 widgets = self.control_panel_ui.widgets
                 auto_record_var = widgets.get('auto_record_var')
-                if auto_record_var and auto_record_var.get() and self._recording_video:
+                if auto_record_var and auto_record_var.get() and self._recording_video:  # type: ignore
                     logger.info(f"{log_prefix}Auto Record Run was enabled - stopping video capture")
                     self._stop_video_capture()
             # ---
@@ -31240,14 +31240,14 @@ class SimulationGUI(Observer, Observable):
                 widgets = self.control_panel_ui.widgets
                 auto_record_var = widgets.get('auto_record_var')
                 if auto_record_var:
-                    auto_record_var.set(False)
+                    auto_record_var.set(False)  # type: ignore
                     # Re-enable manual buttons
                     start_button = widgets.get('start_video_button')
                     stop_button = widgets.get('stop_video_button')
                     if start_button and not self._recording_video:
-                        start_button.config(state=tk.NORMAL)
+                        start_button.config(state=tk.NORMAL)  # type: ignore
                     if stop_button and not self._recording_video:
-                        stop_button.config(state=tk.DISABLED)
+                        stop_button.config(state=tk.DISABLED)  # type: ignore
                     logger.debug(f"{log_prefix}Reset Auto Record Run checkbox to false")
             # ---
 
@@ -33545,7 +33545,7 @@ class SimulationGUI(Observer, Observable):
                     if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                         widgets = self.control_panel_ui.widgets
                         auto_record_var = widgets.get('auto_record_var')
-                        if auto_record_var and auto_record_var.get() and not self._recording_video:
+                        if auto_record_var and auto_record_var.get() and not self._recording_video:  # type: ignore
                             logger.info(f"{log_prefix}Auto Record Run enabled - starting video capture")
                             self._start_video_capture()
                     # ---
@@ -34237,7 +34237,7 @@ class SimulationGUI(Observer, Observable):
         if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
             status_label = self.control_panel_ui.widgets.get('buffering_status_label')
             if status_label:
-                status_label.config(text=f"Click to place '{selected_shape_def.name}' (ESC to cancel)")
+                status_label.config(text=f"Click to place '{selected_shape_def.name}' (ESC to cancel)")  # type: ignore
         
         return  # Don't place immediately, wait for click
 
@@ -34287,7 +34287,7 @@ class SimulationGUI(Observer, Observable):
                     if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                         status_label = self.control_panel_ui.widgets.get('buffering_status_label')
                         if status_label:
-                            status_label.config(text=f"Placed '{selected_shape_def.name}'. Click again or ESC to cancel.")
+                            status_label.config(text=f"Placed '{selected_shape_def.name}'. Click again or ESC to cancel.")  # type: ignore
                 else:
                     logger.warning("Placement cancelled or failed in place_shape_definition.")
                     # Pop the potentially incorrect undo state
@@ -34315,7 +34315,7 @@ class SimulationGUI(Observer, Observable):
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 status_label = self.control_panel_ui.widgets.get('buffering_status_label')
                 if status_label:
-                    status_label.config(text="Shape placement cancelled.")
+                    status_label.config(text="Shape placement cancelled.")  # type: ignore
     
     def _ensure_yaxis_inverted(self):
         """Ensure y-axis is inverted so grid i=0 appears at top of display.
@@ -34355,9 +34355,9 @@ class SimulationGUI(Observer, Observable):
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 status_label = self.control_panel_ui.widgets.get('video_status_label')
                 if status_label:
-                    status_label.config(text=f"Saved: {filename[:30]}...", fg='#00FF00')
+                    status_label.config(text=f"Saved: {filename[:30]}...", fg='#00FF00')  # type: ignore
                     # Reset status after 3 seconds
-                    self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00'))
+                    self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00'))  # type: ignore
                     
         except Exception as e:
             logger.error(f"Error capturing still image: {e}")
@@ -34387,11 +34387,11 @@ class SimulationGUI(Observer, Observable):
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 widgets = self.control_panel_ui.widgets
                 if 'start_video_button' in widgets:
-                    widgets['start_video_button'].config(state=tk.DISABLED)
+                    widgets['start_video_button'].config(state=tk.DISABLED)  # type: ignore
                 if 'stop_video_button' in widgets:
-                    widgets['stop_video_button'].config(state=tk.NORMAL)
+                    widgets['stop_video_button'].config(state=tk.NORMAL)  # type: ignore
                 if 'video_status_label' in widgets:
-                    widgets['video_status_label'].config(text="● RECORDING", fg='#FF0000')
+                    widgets['video_status_label'].config(text="● RECORDING", fg='#FF0000')  # type: ignore
                     
         except Exception as e:
             logger.error(f"Error starting video capture: {e}")
@@ -34425,7 +34425,7 @@ class SimulationGUI(Observer, Observable):
         if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
             status_label = self.control_panel_ui.widgets.get('video_status_label')
             if status_label:
-                status_label.config(text="Saving video...", fg='#FFFF00')
+                status_label.config(text="Saving video...", fg='#FFFF00')  # type: ignore
         
         # Save video in background thread to avoid blocking
         import threading
@@ -34489,9 +34489,9 @@ class SimulationGUI(Observer, Observable):
         if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
             widgets = self.control_panel_ui.widgets
             if 'start_video_button' in widgets:
-                widgets['start_video_button'].config(state=tk.NORMAL)
+                widgets['start_video_button'].config(state=tk.NORMAL) # type: ignore
             if 'stop_video_button' in widgets:
-                widgets['stop_video_button'].config(state=tk.DISABLED)
+                widgets['stop_video_button'].config(state=tk.DISABLED) # type: ignore
     
     def _video_save_complete(self, filename: str, frames_dir: Optional[str]):
         """Called when video save completes (on main thread)."""
@@ -34500,11 +34500,11 @@ class SimulationGUI(Observer, Observable):
                 status_label = self.control_panel_ui.widgets.get('video_status_label')
                 if status_label:
                     if frames_dir:
-                        status_label.config(text=f"Saved frames: {filename[:20]}...", fg='#00FF00')
+                        status_label.config(text=f"Saved frames: {filename[:20]}...", fg='#00FF00') # type: ignore
                         messagebox.showinfo("Video Saved", f"FFMpeg not available. Saved frames to:\n{frames_dir}", parent=self.root)
                     else:
-                        status_label.config(text=f"Saved: {filename[:25]}...", fg='#00FF00')
-                    self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00'))
+                        status_label.config(text=f"Saved: {filename[:25]}...", fg='#00FF00') # type: ignore
+                    self.root.after(3000, lambda: status_label.config(text="Ready", fg='#00FF00')) # type: ignore
         except Exception as e:
             logger.error(f"Error in _video_save_complete: {e}")
     
@@ -34518,23 +34518,23 @@ class SimulationGUI(Observer, Observable):
                 stop_button = widgets.get('stop_video_button')
                 
                 if auto_record_var and start_button and stop_button:
-                    is_auto = auto_record_var.get()
+                    is_auto = auto_record_var.get() # type: ignore
                     
                     # If auto-record is enabled, grey out manual buttons
                     if is_auto:
-                        start_button.config(state=tk.DISABLED)
+                        start_button.config(state=tk.DISABLED)# type: ignore
                         # Only disable stop if not currently recording
                         if not self._recording_video:
-                            stop_button.config(state=tk.DISABLED)
+                            stop_button.config(state=tk.DISABLED) # type: ignore
                         logger.info("Auto Record Run enabled - video will start/stop with simulation")
                     else:
                         # Re-enable manual buttons based on recording state
                         if self._recording_video:
-                            start_button.config(state=tk.DISABLED)
-                            stop_button.config(state=tk.NORMAL)
+                            start_button.config(state=tk.DISABLED) # type: ignore
+                            stop_button.config(state=tk.NORMAL) # type: ignore
                         else:
-                            start_button.config(state=tk.NORMAL)
-                            stop_button.config(state=tk.DISABLED)
+                            start_button.config(state=tk.NORMAL) # type: ignore
+                            stop_button.config(state=tk.DISABLED) # type: ignore
                         logger.info("Auto Record Run disabled - use manual buttons")
                         
         except Exception as e:
@@ -34546,11 +34546,11 @@ class SimulationGUI(Observer, Observable):
         if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
             widgets = self.control_panel_ui.widgets
             if 'start_video_button' in widgets:
-                widgets['start_video_button'].config(state=tk.NORMAL)
+                widgets['start_video_button'].config(state=tk.NORMAL) # type: ignore
             if 'stop_video_button' in widgets:
                 widgets['stop_video_button'].config(state=tk.DISABLED)
             if 'video_status_label' in widgets:
-                widgets['video_status_label'].config(text="Ready", fg='#00FF00')
+                widgets['video_status_label'].config(text="Ready", fg='#00FF00') # type: ignore
     
     def _capture_video_frame(self):
         """Capture the current canvas as a frame for video recording."""
@@ -34558,32 +34558,29 @@ class SimulationGUI(Observer, Observable):
             return
             
         try:
-            # Render canvas to buffer at full figure resolution
-            from io import BytesIO
-            buf = BytesIO()
-            self.fig.savefig(buf, format='png', dpi=self.fig.dpi)
-            buf.seek(0)
+            # Force canvas draw to ensure latest content
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
             
-            # Read back as image array
-            import PIL.Image
-            img = PIL.Image.open(buf)
-            frame_array = np.array(img)
+            # Get the RGBA buffer from the canvas renderer (captures exactly what's displayed)
+            width, height = self.fig.canvas.get_width_height()
+            buf = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)
+            buf = buf.reshape((height, width, 4))
             
-            # Convert RGBA to RGB if necessary
-            if frame_array.shape[2] == 4:
-                frame_array = frame_array[:, :, :3]
+            # Convert RGBA to RGB
+            frame_array = buf[:, :, :3].copy()
             
             self._video_frames.append(frame_array)
-            buf.close()
             
             # Update status with frame count
             if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                 status_label = self.control_panel_ui.widgets.get('video_status_label')
                 if status_label:
-                    status_label.config(text=f"● REC ({len(self._video_frames)} frames)", fg='#FF0000')
+                    status_label.config(text=f"● REC ({len(self._video_frames)} frames)", fg='#FF0000')  # type: ignore
                     
         except Exception as e:
             logger.error(f"Error capturing video frame: {e}")
+            logger.error(traceback.format_exc())
     
 
     def _add_default_edges_to_selection(self):
