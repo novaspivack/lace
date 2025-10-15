@@ -7437,6 +7437,14 @@ class ViewManager:
             elif active_tool == "erase": self._handle_erase_press(x_data, y_data); self._mouse_mode = 'erase_action'; self.panning = False; logger.debug("  Mode set to 'erase_action', panning=False")
             elif active_tool == "add_edge": self._handle_add_edge_start(x_data, y_data); self._mouse_mode = 'add_edge_action'; self.panning = False; logger.debug("  Mode set to 'add_edge_action', panning=False")
             elif active_tool == "del_edge": self._handle_del_edge_press(x_data, y_data); self._deleted_edges_in_drag.clear(); self._mouse_mode = 'del_edge_action'; self.panning = False; logger.debug("  Mode set to 'del_edge_action', panning=False")
+            elif active_tool == "shape_placement": 
+                # Convert display coords to grid coords and place shape
+                grid_coord = self._find_node_in_click_field(x_data, y_data)
+                if grid_coord:
+                    self.gui._place_shape_at_click(grid_coord)
+                else:
+                    logger.warning("Could not determine grid coordinates for shape placement")
+                self._mouse_mode = None; self.panning = False; logger.debug("  Shape placement handled, mode reset")
             else: logger.warning(f"Unhandled active tool: {active_tool}"); self._mouse_mode = None; self.panning = False; logger.debug("  Mode set to None, panning=False")
 
             self._drag_start_pos = (x_data, y_data)
@@ -22091,6 +22099,8 @@ class SimulationGUI(Observer, Observable):
             # ---
             self._is_setting_defaults = False
             self.active_tool: Optional[str] = None
+            self._shape_to_place: Optional['ShapeDefinition'] = None  # Shape pending placement
+            self._add_edges_on_shape_place: bool = False  # Whether to add edges when placing
             self.paused = False
             self._user_interaction_active = False
             self._stopped = True
@@ -25182,6 +25192,8 @@ class SimulationGUI(Observer, Observable):
                 binding_id_b4 = canvas_widget.bind("<Button-4>", lambda event, v=vm: v._on_mousewheel(event)) # Linux scroll
                 binding_id_b5 = canvas_widget.bind("<Button-5>", lambda event, v=vm: v._on_mousewheel(event)) # Linux scroll
                 # --- END MODIFIED ---
+                # Add ESC key binding for cancelling shape placement
+                binding_id_escape = canvas_widget.bind("<Escape>", lambda event: self._cancel_shape_placement())
                 right_click_event = "<Button-2>" if platform.system() == "Darwin" else "<Button-3>"
                 binding_id_right_click = canvas_widget.bind(right_click_event, self._on_tk_right_click) # Keep this binding
 
@@ -34059,11 +34071,9 @@ class SimulationGUI(Observer, Observable):
         return None
 
     def _place_shape_definition_from_editor(self):
-        """Gets selected shape, calculates center, checks 'Add Edges' checkbox, and places it."""
+        """Activates click-to-place mode for the selected shape."""
         log_prefix = "_place_shape_definition_from_editor: "
-        # --- ADDED: Log entry and pause state ---
-        logger.info(f"{log_prefix}Initiating placement from editor. Paused={self.paused}")
-        # ---
+        logger.info(f"{log_prefix}Activating shape placement mode.")
 
         if not hasattr(self, 'shape_editor_window') or not self.shape_editor_window or not self.shape_editor_window.winfo_exists():
             logger.warning("Shape editor window not open.")
@@ -34086,14 +34096,32 @@ class SimulationGUI(Observer, Observable):
         else:
             logger.warning("Could not find add_edges_on_place_var in editor window.")
 
-        try:
-            center_coords_float = self._get_view_center_grid_coords()
-            center_coords_int = tuple(int(round(c)) for c in center_coords_float)
-            min_rel, max_rel = selected_shape_def.get_bounding_box()
-            shape_center_offset = tuple((mn + mx) / 2 for mn, mx in zip(min_rel, max_rel))
-            origin = tuple(int(round(center - offset)) for center, offset in zip(center_coords_int, shape_center_offset))
+        # Activate shape placement mode
+        self.active_tool = "shape_placement"
+        self._shape_to_place = selected_shape_def
+        self._add_edges_on_shape_place = add_default_edges
+        
+        logger.info(f"Shape placement mode activated for '{selected_shape_def.name}'. Click on canvas to place. Press ESC to cancel.")
+        if hasattr(self, 'status_label') and self.status_label:
+            self.status_label.config(text=f"Click to place '{selected_shape_def.name}' (ESC to cancel)")
+        
+        return  # Don't place immediately, wait for click
 
-            logger.info(f"Placing shape '{selected_shape_def.name}' centered near grid coords {center_coords_int} (calculated origin: {origin})")
+    def _place_shape_at_click(self, click_coords: Tuple[int, ...]):
+        """Places the pending shape at the clicked location."""
+        log_prefix = "_place_shape_at_click: "
+        
+        if self._shape_to_place is None:
+            logger.warning(f"{log_prefix}No shape pending placement.")
+            return
+        
+        selected_shape_def = self._shape_to_place
+        add_default_edges = self._add_edges_on_shape_place
+        origin = click_coords  # Use click location as origin (bottom-left)
+
+        logger.info(f"Placing shape '{selected_shape_def.name}' at clicked coords {origin}")
+
+        try:
 
             # --- REMOVED Pause/Resume ---
             # self._pause_computation(reason="Place Shape from Editor")
@@ -34120,6 +34148,10 @@ class SimulationGUI(Observer, Observable):
                     # Force redraw only if placement wasn't cancelled
                     self._safe_plot_update(force=True)
                     logger.debug("Shape placement attempt finished, visualization updated.")
+                    
+                    # Keep placement mode active so user can place multiple copies
+                    if hasattr(self, 'status_label') and self.status_label:
+                        self.status_label.config(text=f"Placed '{selected_shape_def.name}'. Click to place more, ESC to cancel.")
                 else:
                     logger.warning("Placement cancelled or failed in place_shape_definition.")
                     # Pop the potentially incorrect undo state
@@ -34133,7 +34165,20 @@ class SimulationGUI(Observer, Observable):
         except Exception as e:
             logger.error(f"Error placing shape definition: {e}")
             logger.error(traceback.format_exc())
-            messagebox.showerror("Error", f"Failed to place shape: {e}", parent=self.shape_editor_window)
+            messagebox.showerror("Error", f"Failed to place shape: {e}", parent=self.root)
+            # Cancel placement mode on error
+            self._cancel_shape_placement()
+    
+    def _cancel_shape_placement(self):
+        """Cancel active shape placement mode."""
+        if self.active_tool == "shape_placement":
+            logger.info("Cancelling shape placement mode.")
+            self.active_tool = None
+            self._shape_to_place = None
+            self._add_edges_on_shape_place = False
+            if hasattr(self, 'status_label') and self.status_label:
+                self.status_label.config(text="Shape placement cancelled.")
+        
 
     def _add_default_edges_to_selection(self):
         """Adds default edges ('full' connectivity) to the currently selected nodes."""
