@@ -20633,6 +20633,7 @@ class ControlPanelUI:
         self._create_tiebreaker_section(parent_frame, widgets_dict)
         self._create_status_section(parent_frame, widgets_dict)
         self._create_control_section(parent_frame, widgets_dict)
+        self._create_screen_capture_section(parent_frame, widgets_dict)
         self._create_step_control_section(parent_frame, widgets_dict)
         self._create_visualization_section(parent_frame, widgets_dict)
         self._create_view_control_section(parent_frame, widgets_dict)
@@ -20642,7 +20643,6 @@ class ControlPanelUI:
         self._create_color_settings_section(parent_frame, widgets_dict)
         self._create_analytics_section(parent_frame, widgets_dict)
         self._create_save_load_section(parent_frame, widgets_dict)
-        self._create_screen_capture_section(parent_frame, widgets_dict)
         self._create_performance_section(parent_frame, widgets_dict)
         self._create_debug_section(parent_frame, widgets_dict)
         # --- End passing widgets_dict ---
