@@ -15683,11 +15683,12 @@ class RuleEditorWindow(tk.Toplevel):
         settings_frame.pack(fill=tk.X, padx=5, pady=5)
 
         # Dimension selection
+        # NOTE: THREE_D is not fully implemented and has been disabled
         dimension_label = tk.Label(settings_frame, text="Dimension:")
         dimension_label.pack(anchor="w")
         dimension_var = tk.StringVar(value=self.parent.controller.dimension_type.name)
-        dimension_menu = tk.OptionMenu(settings_frame, dimension_var, *[dim.name for dim in Dimension],
-                                        command=lambda value: self.parent._on_dimension_change(value.get()))
+        # Only TWO_D is available - THREE_D functionality is incomplete
+        dimension_menu = tk.OptionMenu(settings_frame, dimension_var, "TWO_D")
         dimension_menu.pack(fill=tk.X, padx=5, pady=2)
         self.widgets['dimension_menu'] = dimension_menu  # Store in self.widgets
 

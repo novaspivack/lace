@@ -1064,7 +1064,8 @@ class CreateGridPresetModal(tk.Toplevel):
         self.grid_size_entry.pack(fill=tk.X, padx=5, pady=2)
 
         ttk.Label(top_info_frame, text="Dimension:").pack(fill=tk.X, padx=5, pady=2)
-        self.dimension_menu = ttk.Combobox(top_info_frame, textvariable=self.dimension_var, values=["TWO_D", "THREE_D"], state="readonly")
+        # NOTE: THREE_D is not fully implemented and has been disabled
+        self.dimension_menu = ttk.Combobox(top_info_frame, textvariable=self.dimension_var, values=["TWO_D"], state="readonly")
         self.dimension_menu.pack(fill=tk.X, padx=5, pady=2)
         self.grid_size_var.trace_add("write", self._update_dimension_display)
 
