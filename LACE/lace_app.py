@@ -22185,6 +22185,7 @@ class SimulationGUI(Observer, Observable):
             self._is_initializing_or_applying_preset = False
             # ---
             self._is_setting_defaults = False
+            self._preset_was_applied_during_init: bool = False  # Set by Application after init
             self.active_tool: Optional[str] = None
             self._shape_to_place: Optional['ShapeDefinition'] = None  # Shape pending placement
             self._add_edges_on_shape_place: bool = False  # Whether to add edges when placing
