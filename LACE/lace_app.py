@@ -34548,7 +34548,7 @@ class SimulationGUI(Observer, Observable):
             if 'start_video_button' in widgets:
                 widgets['start_video_button'].config(state=tk.NORMAL) # type: ignore
             if 'stop_video_button' in widgets:
-                widgets['stop_video_button'].config(state=tk.DISABLED)
+                widgets['stop_video_button'].config(state=tk.DISABLED) # type: ignore
             if 'video_status_label' in widgets:
                 widgets['video_status_label'].config(text="Ready", fg='#00FF00') # type: ignore
     
@@ -34564,7 +34564,7 @@ class SimulationGUI(Observer, Observable):
             
             # Get the RGBA buffer from the canvas renderer (captures exactly what's displayed)
             width, height = self.fig.canvas.get_width_height()
-            buf = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)
+            buf = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)  # type: ignore
             buf = buf.reshape((height, width, 4))
             
             # Convert RGBA to RGB
