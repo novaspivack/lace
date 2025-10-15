@@ -34310,9 +34310,16 @@ class SimulationGUI(Observer, Observable):
                     if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
                         status_label = self.control_panel_ui.widgets.get('buffering_status_label')
                         if status_label:
-                            status_label.config(text=f"Placed '{selected_shape_def.name}'. Click again or ESC to cancel.")  # type: ignore
+                            status_label.config(text=f"✓ Placed '{selected_shape_def.name}'. Click again or ESC to cancel.")  # type: ignore
                 else:
                     logger.warning("Placement cancelled or failed in place_shape_definition.")
+                    # Show user-friendly feedback
+                    if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                        status_label = self.control_panel_ui.widgets.get('buffering_status_label')
+                        if status_label:
+                            status_label.config(text=f"✗ Shape won't fit here. Try clicking lower on the canvas.")  # type: ignore
+                    # Brief flash to show feedback
+                    self.root.after(2000, lambda: self._update_placement_status_label())
                     # Pop the potentially incorrect undo state
                     if self._grid_undo_stack and self._grid_undo_stack[-1]['action'].startswith("Place Shape"):
                         self._grid_undo_stack.pop()
@@ -34327,6 +34334,14 @@ class SimulationGUI(Observer, Observable):
             messagebox.showerror("Error", f"Failed to place shape: {e}", parent=self.root)
             # Cancel placement mode on error
             self._cancel_shape_placement()
+    
+    def _update_placement_status_label(self):
+        """Update status label to show current placement mode state."""
+        if self.active_tool == "shape_placement" and self._shape_to_place:
+            if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                status_label = self.control_panel_ui.widgets.get('buffering_status_label')
+                if status_label:
+                    status_label.config(text=f"Click to place '{self._shape_to_place.name}' (ESC to cancel)")  # type: ignore
     
     def _cancel_shape_placement(self):
         """Cancel active shape placement mode."""
