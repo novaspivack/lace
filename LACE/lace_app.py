@@ -21505,7 +21505,7 @@ class ControlPanelUI:
         )
         video_status_label.pack(fill=tk.X, padx=5, pady=(2, 5))
         widgets_dict['video_status_label'] = video_status_label
-    
+
     def _create_color_settings_section(self, parent_frame: tk.Frame, widgets_dict: Dict[str, tk.Widget]): # Added widgets_dict argument
         """Create color settings section with a button to launch the modal."""
         color_section = tk.LabelFrame(parent_frame, text="Color Settings", bg='#404040', fg='white')
@@ -24815,7 +24815,7 @@ class SimulationGUI(Observer, Observable):
 
             # Check if preset was applied during initialization
             preset_applied = getattr(self, '_preset_was_applied_during_init', False)
-            
+
             if self.grid is not None and not preset_applied:
                 logger.info("Preset NOT applied during init, initializing grid state now.")
                 if self.grid.spatial_hash is not None:
