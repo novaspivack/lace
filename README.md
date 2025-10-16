@@ -200,7 +200,7 @@ Mouse & Keyboard Controls:
 
 ## Gallery
 
-**🎬 [View Full Video Gallery →](YOUR_BLOG_URL_HERE)**
+**🎬 [View Full Video Gallery →](https://www.novaspivack.com/science/introducing-lace-a-new-kind-of-cellular-automata)**
 
 Watch 70+ simulation captures with inline playback on the dedicated gallery page.
 
