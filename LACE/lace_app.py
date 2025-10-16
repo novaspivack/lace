@@ -33219,6 +33219,15 @@ class SimulationGUI(Observer, Observable):
                 self.neighborhood_type = new_neighborhood_type
                 self.controller.neighborhood_type = self.neighborhood_type
                 logger.info(f"{log_prefix}Neighborhood type updated to {self.neighborhood_type.name}.")
+                
+                # Update the neighborhood_var to reflect the change
+                self.neighborhood_var.set(self.neighborhood_type.name)
+                
+                # Update the rule's parameters with the new neighborhood type
+                if self.controller.rule:
+                    self.controller.rule.params['neighborhood_type'] = self.neighborhood_type.name
+                    logger.info(f"{log_prefix}Rule parameter 'neighborhood_type' updated to {self.neighborhood_type.name}")
+                
                 if self.grid is not None and self.coord_system is not None:
                     self.grid.reinitialize(
                         self.dimensions, self.neighborhood_type, self.dimension_type,
@@ -33227,10 +33236,17 @@ class SimulationGUI(Observer, Observable):
                     self.grid.setup_shared_memory(); self.controller.grid = self.grid
                     logger.info(f"{log_prefix}Grid reinitialized.")
                 else: logger.error(f"{log_prefix}Grid or CoordinateSystem is not initialized."); self._is_transitioning = False; return
+                
+                # Update the control panel selector to show the new value
+                if hasattr(self, 'control_panel_ui') and self.control_panel_ui:
+                    self.control_panel_ui.update_neighborhood_selector()
+                
                 self.reset_simulation()
                 logger.info(f"{log_prefix}Neighborhood changed to: {neighborhood_str}")
             else:
                 logger.debug(f"{log_prefix}Neighborhood type unchanged.")
+                # Even if unchanged, ensure UI is synced
+                self.neighborhood_var.set(self.neighborhood_type.name)
 
         except KeyError:
             logger.error(f"{log_prefix}Invalid neighborhood type string: {neighborhood_str}")
