@@ -11691,6 +11691,9 @@ class RuleEditorWindow(tk.Toplevel):
         button_width = 15
         apply_btn = tk.Button(bottom_button_frame, text="Apply Parameters", width=button_width, command=self._apply_parameters, disabledforeground=button_disabled_fg)
         apply_btn.pack(side=tk.LEFT, padx=2, pady=2)
+        # Copy Spec button next to Apply
+        copy_spec_btn = tk.Button(bottom_button_frame, text="📋 Copy Spec", width=button_width // 2, command=self._copy_rule_spec_to_clipboard, disabledforeground=button_disabled_fg)
+        copy_spec_btn.pack(side=tk.LEFT, padx=2, pady=2)
         close_btn = tk.Button(bottom_button_frame, text="Close", width=button_width // 2, command=self._on_rule_editor_close, disabledforeground=button_disabled_fg)
         close_btn.pack(side=tk.RIGHT, padx=2, pady=2)
         delete_btn = tk.Button(bottom_button_frame, text="Delete Rule", width=button_width, command=self.delete_rule, disabledforeground=button_disabled_fg)
@@ -11713,11 +11716,6 @@ class RuleEditorWindow(tk.Toplevel):
         regenerate_btn.pack(side=tk.LEFT, padx=5, pady=2)
         self.manage_categories_button = tk.Button(self.top_button_frame, text="Manage Categories...", command=self._open_category_manager, disabledforeground=button_disabled_fg)
         self.manage_categories_button.pack(side=tk.LEFT, padx=2, pady=2)
-
-        # --- ADDED: Copy Spec to Clipboard Button ---
-        copy_spec_btn = tk.Button(self.top_button_frame, text="📋 Copy Spec", width=button_width // 2, command=self._copy_rule_spec_to_clipboard, disabledforeground=button_disabled_fg)
-        copy_spec_btn.pack(side=tk.LEFT, padx=2, pady=2)
-        # --- END ADDED ---
 
         # --- ADDED: Favorite Checkbox (Right-aligned in top row) ---
         # self.favorite_var is initialized in __init__ based on rule_data
