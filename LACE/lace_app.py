@@ -36443,6 +36443,26 @@ class Initializer(threading.Thread):
             logger.debug("Initializing ShapeLibraryManager...")
             shape_manager = ShapeLibraryManager.get_instance(self.app_paths)
             result["shape_manager"] = shape_manager
+            
+            # Check if library is minimal and warn user
+            total_shapes = len(shape_manager.get_shape_names())
+            if total_shapes < 10:
+                logger.warning("=" * 80)
+                logger.warning(f"MINIMAL SHAPE LIBRARY DETECTED ({total_shapes} shapes)")
+                logger.warning("The full LACE shape library (4,795 shapes) was not downloaded.")
+                logger.warning("This typically happens when Git LFS is not properly set up.")
+                logger.warning("")
+                logger.warning("To get the full library:")
+                logger.warning("  1. Install Git LFS: brew install git-lfs")
+                logger.warning("  2. Initialize: git lfs install")
+                logger.warning("  3. Download: git lfs pull")
+                logger.warning("")
+                logger.warning("The app will work fine with the minimal library.")
+                logger.warning("You can create and import shapes manually.")
+                logger.warning("=" * 80)
+            else:
+                logger.info(f"Shape library loaded successfully: {total_shapes} shapes available.")
+            
             logger.info("Managers initialized.")
 
             # [ Determine Initial Settings - Store default_preset_obj ]

@@ -2157,6 +2157,38 @@ class ShapeLibraryEditorWindow(tk.Toplevel):
         filter_term = self.search_var.get()
         self._populate_treeview(filter_term)
 
+    def _check_minimal_library_warning(self):
+        """Check if library is minimal and show a one-time warning."""
+        # Only show warning once per session
+        if not hasattr(self, '_minimal_library_warning_shown'):
+            self._minimal_library_warning_shown = False
+        
+        if self._minimal_library_warning_shown:
+            return
+        
+        # Count total shapes
+        total_shapes = len(self.shape_manager.get_shape_names())
+        
+        # If library is minimal (< 10 shapes), show warning
+        if total_shapes < 10:
+            self._minimal_library_warning_shown = True
+            from tkinter import messagebox
+            message = (
+                f"⚠️  Minimal Shape Library Detected ({total_shapes} shapes)\n\n"
+                "The full LACE shape library (4,795 shapes) was not downloaded.\n\n"
+                "This typically happens when:\n"
+                "  • Git LFS is not installed\n"
+                "  • Git LFS was not initialized before cloning\n"
+                "  • The repository was cloned without LFS data\n\n"
+                "To get the full library:\n"
+                "  1. Install Git LFS: brew install git-lfs\n"
+                "  2. Initialize: git lfs install\n"
+                "  3. Download: git lfs pull\n\n"
+                "You can still create and use shapes manually!"
+            )
+            messagebox.showwarning("Minimal Shape Library", message, parent=self)
+            logger.warning(f"Minimal shape library detected: {total_shapes} shapes loaded.")
+
     def _populate_treeview(self, filter_term: str = ""):
         """Clear and populate the treeview with categories and shapes, applying filter."""
         if not self.tree: return
@@ -2190,6 +2222,9 @@ class ShapeLibraryEditorWindow(tk.Toplevel):
                 for shape_name in filtered_shape_names:
                     # Insert shape under its category, store name in 'values'
                     self.tree.insert(category_node_id, tk.END, values=(shape_name,))
+        
+        # Check if we're using a minimal library and show warning
+        self._check_minimal_library_warning()
 
     def _open_edit_hotmenu_modal(self):
         """Opens the modal dialog to edit the hotmenu."""
@@ -2974,6 +3009,23 @@ class ShapeLibraryManager:
                 self.save_shape_library() # Save the newly created default library
                 # Raw data is populated by _create_default_shape_library
                 return # Exit after creating default
+
+            # Check if file is a Git LFS pointer (not the actual data)
+            file_size = os.path.getsize(self.library_path)
+            if file_size < 2048:  # LFS pointer files are typically < 200 bytes
+                with open(self.library_path, 'r', encoding='utf-8') as f:
+                    first_line = f.readline().strip()
+                    if 'version https://git-lfs.github.com' in first_line:
+                        logger.error(f"Shape library file at {self.library_path} is a Git LFS pointer file!")
+                        logger.error("The actual library data was not downloaded. This typically happens when:")
+                        logger.error("  1. Git LFS is not installed (install with: brew install git-lfs)")
+                        logger.error("  2. Git LFS was not initialized (run: git lfs install)")
+                        logger.error("  3. The repository was cloned without LFS data (run: git lfs pull)")
+                        logger.warning("Creating minimal default shape library. You can add more shapes manually.")
+                        logger.warning("To get the full 4,795 shape library, run: git lfs pull")
+                        self._create_default_shape_library()
+                        self.save_shape_library()
+                        return
 
             # Load existing file
             logger.debug(f"Loading existing file: {self.library_path}")
