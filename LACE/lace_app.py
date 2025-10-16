@@ -11714,6 +11714,11 @@ class RuleEditorWindow(tk.Toplevel):
         self.manage_categories_button = tk.Button(self.top_button_frame, text="Manage Categories...", command=self._open_category_manager, disabledforeground=button_disabled_fg)
         self.manage_categories_button.pack(side=tk.LEFT, padx=2, pady=2)
 
+        # --- ADDED: Copy Spec to Clipboard Button ---
+        copy_spec_btn = tk.Button(self.top_button_frame, text="📋 Copy Spec", width=button_width // 2, command=self._copy_rule_spec_to_clipboard, disabledforeground=button_disabled_fg)
+        copy_spec_btn.pack(side=tk.LEFT, padx=2, pady=2)
+        # --- END ADDED ---
+
         # --- ADDED: Favorite Checkbox (Right-aligned in top row) ---
         # self.favorite_var is initialized in __init__ based on rule_data
         self.favorite_checkbutton = tk.Checkbutton(
@@ -14435,6 +14440,211 @@ class RuleEditorWindow(tk.Toplevel):
     def _get_change_tracker(self) -> Optional[ChangeTracker]:
         """Get the change tracker for this window"""
         return self.change_tracker
+
+    def _copy_rule_spec_to_clipboard(self):
+        """Generate a human-readable specification for the current rule and copy to clipboard."""
+        try:
+            spec = self._generate_rule_spec()
+            self.clipboard_clear()
+            self.clipboard_append(spec)
+            self.update()  # Required to actually update clipboard
+            
+            # Show success message
+            if self.message_bar_label:
+                self.message_bar_label.config(text="✓ Rule specification copied to clipboard!", fg="green")
+                self.after(3000, lambda: self.message_bar_label.config(text=""))
+            
+            logger.info(f"Rule specification copied to clipboard for: {self.rule_name}")
+        except Exception as e:
+            logger.error(f"Error copying rule spec to clipboard: {e}")
+            messagebox.showerror("Error", f"Failed to copy rule spec:\n{e}", parent=self)
+
+    def _generate_rule_spec(self) -> str:
+        """Generate a human-readable specification text for the current rule."""
+        rule_data = self.rule_data
+        params = rule_data.get('params', {})
+        
+        lines = []
+        lines.append("=" * 80)
+        lines.append(f"RULE SPECIFICATION: {rule_data.get('name', 'Unknown')}")
+        lines.append("=" * 80)
+        lines.append("")
+        
+        # === METADATA ===
+        lines.append("METADATA")
+        lines.append("-" * 80)
+        lines.append(f"  Type:        {rule_data.get('type', 'N/A')}")
+        lines.append(f"  Category:    {rule_data.get('category', 'N/A')}")
+        lines.append(f"  Position:    {rule_data.get('position', 'N/A')}")
+        lines.append(f"  Favorite:    {'Yes' if rule_data.get('favorite', False) else 'No'}")
+        
+        description = rule_data.get('description', '').strip()
+        if description:
+            lines.append(f"  Description: {description}")
+        
+        lines.append("")
+        
+        # === CORE PARAMETERS ===
+        lines.append("CORE PARAMETERS")
+        lines.append("-" * 80)
+        
+        core_params = [
+            ('neighborhood_type', 'Neighborhood Type'),
+            ('dimension_type', 'Dimension Type'),
+            ('grid_boundary', 'Grid Boundary'),
+            ('initial_density', 'Initial Density'),
+            ('edge_initialization', 'Edge Initialization'),
+        ]
+        
+        for param_key, param_label in core_params:
+            if param_key in params:
+                value = params[param_key]
+                lines.append(f"  {param_label:30s} {value}")
+        
+        lines.append("")
+        
+        # === RULE LOGIC ===
+        lines.append("RULE LOGIC")
+        lines.append("-" * 80)
+        
+        # Birth/Survival/Death parameters
+        logic_params = []
+        for key, value in params.items():
+            if any(keyword in key.lower() for keyword in ['birth', 'survival', 'death', 'life', 'eligibility', 'metric']):
+                if value and value != [] and value != {}:
+                    logic_params.append((key, value))
+        
+        if logic_params:
+            for key, value in sorted(logic_params):
+                # Format key nicely
+                display_key = key.replace('_', ' ').title()
+                # Format value based on type
+                if isinstance(value, list):
+                    if len(value) <= 10:
+                        value_str = str(value)
+                    else:
+                        value_str = f"[{len(value)} values: {value[:5]}...]"
+                elif isinstance(value, dict):
+                    value_str = f"{{{len(value)} entries}}"
+                else:
+                    value_str = str(value)
+                
+                lines.append(f"  {display_key:40s} {value_str}")
+        else:
+            lines.append("  (No explicit rule logic parameters)")
+        
+        lines.append("")
+        
+        # === STATE PARAMETERS ===
+        lines.append("STATE PARAMETERS")
+        lines.append("-" * 80)
+        
+        state_params = [
+            ('initial_continuous_node_state', 'Initial Node State'),
+            ('initial_continuous_edge_state', 'Initial Edge State'),
+            ('random_state_flip_probability', 'Random State Flip Probability'),
+            ('random_edge_toggle_probability', 'Random Edge Toggle Probability'),
+        ]
+        
+        for param_key, param_label in state_params:
+            if param_key in params:
+                value = params[param_key]
+                lines.append(f"  {param_label:35s} {value}")
+        
+        lines.append("")
+        
+        # === VISUALIZATION ===
+        lines.append("VISUALIZATION")
+        lines.append("-" * 80)
+        
+        viz_params = [
+            ('use_state_coloring', 'Use State Coloring'),
+            ('node_colormap', 'Node Colormap'),
+            ('edge_colormap', 'Edge Colormap'),
+            ('color_nodes_by_degree', 'Color Nodes by Degree'),
+            ('color_nodes_by_active_neighbors', 'Color Nodes by Active Neighbors'),
+            ('edge_coloring_mode', 'Edge Coloring Mode'),
+            ('use_state_coloring_edges', 'Use State Coloring (Edges)'),
+            ('node_color_norm_vmin', 'Node Color Range Min'),
+            ('node_color_norm_vmax', 'Node Color Range Max'),
+            ('edge_color_norm_vmin', 'Edge Color Range Min'),
+            ('edge_color_norm_vmax', 'Edge Color Range Max'),
+        ]
+        
+        for param_key, param_label in viz_params:
+            if param_key in params:
+                value = params[param_key]
+                lines.append(f"  {param_label:35s} {value}")
+        
+        # Rule-specific colors
+        lines.append("")
+        lines.append("  Rule-Specific Colors:")
+        use_override = params.get('use_rule_specific_colors', False)
+        lines.append(f"    Enabled:                         {use_override}")
+        if use_override:
+            color_overrides = [
+                ('rule_background_color', 'Background'),
+                ('rule_node_base_color', 'Node Base'),
+                ('rule_node_color', 'Node Color'),
+                ('rule_new_node_color', 'New Node'),
+                ('rule_default_edge_color', 'Default Edge'),
+                ('rule_new_edge_color', 'New Edge'),
+            ]
+            for param_key, param_label in color_overrides:
+                if param_key in params:
+                    value = params[param_key]
+                    if value:
+                        lines.append(f"    {param_label:30s} {value}")
+        
+        lines.append("")
+        
+        # === RULE TABLES (if present) ===
+        if 'state_rule_table' in params or 'edge_rule_table' in params:
+            lines.append("RULE TABLES")
+            lines.append("-" * 80)
+            if 'state_rule_table' in params:
+                state_table = params['state_rule_table']
+                lines.append(f"  State Table: {len(state_table)} rows")
+            if 'edge_rule_table' in params:
+                edge_table = params['edge_rule_table']
+                lines.append(f"  Edge Table: {len(edge_table)} rows")
+            lines.append("")
+        
+        # === ADVANCED PARAMETERS ===
+        lines.append("ADVANCED PARAMETERS")
+        lines.append("-" * 80)
+        
+        # List all remaining parameters not covered above
+        covered_keys = set()
+        for section in [core_params, state_params, viz_params]:
+            covered_keys.update(key for key, _ in section)
+        covered_keys.update(['state_rule_table', 'edge_rule_table', 'use_rule_specific_colors',
+                            'rule_background_color', 'rule_node_base_color', 'rule_node_color',
+                            'rule_new_node_color', 'rule_default_edge_color', 'rule_new_edge_color'])
+        
+        advanced_params = []
+        for key, value in params.items():
+            if key not in covered_keys:
+                if not any(keyword in key.lower() for keyword in ['birth', 'survival', 'death', 'life', 'eligibility', 'metric']):
+                    advanced_params.append((key, value))
+        
+        if advanced_params:
+            for key, value in sorted(advanced_params):
+                display_key = key.replace('_', ' ').title()
+                if isinstance(value, (list, dict)) and len(str(value)) > 60:
+                    value_str = f"{type(value).__name__} ({len(value)} items)"
+                else:
+                    value_str = str(value)
+                lines.append(f"  {display_key:40s} {value_str}")
+        else:
+            lines.append("  (None)")
+        
+        lines.append("")
+        lines.append("=" * 80)
+        lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        lines.append("=" * 80)
+        
+        return "\n".join(lines)
 
     def _update_editor_buttons(self):
         """Update the state of the editor buttons (undo/redo/save/delete) based on change tracker and rule type, manually setting foreground color. Save and Apply buttons are always enabled. Checks widget existence.
