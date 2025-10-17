@@ -21124,7 +21124,10 @@ class ControlPanelUI:
         if current_var_value not in condition_names and current_var_value != "Pattern":
             logger.warning(f"Initial condition '{current_var_value}' from GUI var not in options {condition_names}. Resetting var to '{condition_names[0]}'.")
             self.gui.initial_conditions_var.set(condition_names[0])
-        elif current_var_value == "Pattern":
+            current_var_value = condition_names[0]  # Update local variable after reset
+        
+        # Create the selector based on current state
+        if current_var_value == "Pattern":
             logger.debug(f"Initial condition is 'Pattern' (likely from preset), keeping it but dropdown will show first valid option.")
             # Keep the internal variable as "Pattern", but set the *display* of the OptionMenu
             # to the first available user-selectable option initially. The internal var retains "Pattern".
