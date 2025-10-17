@@ -24,7 +24,7 @@ The rule operates in **three distinct phases** per simulation step:
 ### Core Concept
 Each node calculates an "eligibility metric" based on its neighbors' **previous state** (their degree/connectivity from the last step). This determines whether the node can form connections in this step.
 
-### For Your Rule: BETWEENNESS Metric
+### For The Amazing Dragons Rule: BETWEENNESS Metric
 
 **Birth Eligibility** (inactive nodes trying to become active):
 - **Metric Type:** BETWEENNESS (proxy)
@@ -163,8 +163,8 @@ Sum = 1/2 + 1/4 + 1/1 + 0 + 1/5 + 1/3 + 1/2 + 1/4
 - These are likely sweet spots for the rule's intended dynamics
 
 ### The "Dragons" Effect
-The name "Amazing_Dragons_Wow" likely refers to the emergent patterns this specific parameter set creates:
-- The betweenness-based eligibility creates branching, fractal-like growth
+The name "Amazing_Dragons_Wow" refers to the emergent patterns this specific parameter set creates:
+- The betweenness-based eligibility creates branching, fractal-like growth with long "dragon" patterns
 - The degree constraints (death at 1 and 7, life at 2, 4, 8) create structured, dragon-like shapes
 - The difference between birth (1.4-7.0) and survival (0.9-2.6) ranges creates expanding "heads" with stable "bodies"
 
