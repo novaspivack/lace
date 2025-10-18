@@ -109,7 +109,7 @@ Important: A spatial neighbor is NOT automatically a network neighbor. Edges mus
 - **Independent Edge Dynamics:** Edges don't have their own state transition rules separate from node eligibility
 - **Edge-to-Edge Rules:** Edge formation/removal is always mediated through node states
 
-**The Technical Critique:**
+**The Technical Distinction:**
 
 Since edges form purely based on mutual eligibility (which depends on neighbor states), they can be viewed as a **representational layer** over what is essentially a traditional CA with:
 - Extended neighborhood (5×5 to capture second-order effects)
@@ -118,7 +118,7 @@ Since edges form purely based on mutual eligibility (which depends on neighbor s
 
 This doesn't diminish the value or sophistication of Realm of Lace, but it clarifies its position in the taxonomy of cellular automata.
 
-**Future Direction: Edge Rule Tables (Infrastructure Exists, Not Yet Implemented)**
+**Future Direction: Edge Rule Tables (Infrastructure Exists, Not Yet Implemented in the Rule Execture)**
 
 LACE includes UI and data structures for **edge rule tables** that would provide true dynamic topology:
 
