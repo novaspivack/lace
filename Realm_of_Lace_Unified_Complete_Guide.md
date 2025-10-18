@@ -12,6 +12,7 @@
 2. [Fundamental Concepts](#fundamental-concepts)
    - [Network-Inspired vs. True Dynamic Topology](#important-network-inspired-vs-true-dynamic-topology)
 3. [Three-Phase Execution Model](#three-phase-execution-model)
+   - [Why Three Phases Matter: Implementation Requirements](#why-three-phases-matter-implementation-requirements)
 4. [The Eight Metrics](#the-eight-metrics)
 5. [Configuration System](#configuration-system)
 6. [Edge Formation Logic](#edge-formation-logic)
@@ -209,6 +210,73 @@ else:
 **Output:**
 - New node states for next step
 - Typically: `state = degree` (but can be 0 if death condition met)
+
+### Why Three Phases Matter: Implementation Requirements
+
+**Architectural Necessity:** The three-phase execution model is not merely a design abstraction—it requires **real intermediate storage** between phases that cannot be collapsed into a single-pass update.
+
+**The Critical Dependency:**
+
+Phase 2 depends on Phase 1's output from the **current step**, not the previous step:
+```python
+# Phase 1 (current step): Compute eligibility for ALL nodes
+for each node:
+    eligibility[node] = check_metric(neighbors_from_previous_step)
+
+# Phase 2 (current step): Form edges using CURRENT eligibility
+for each node_pair (A, B):
+    if eligibility[A] > 0.5 AND eligibility[B] > 0.5:  # ← Reads Phase 1 output!
+        create_edge(A, B)
+```
+
+**Why This Is Non-Trivial:**
+
+Attempts to implement this in single-pass systems (like Shadertoy's ping-pong buffer architecture) fail because:
+
+1. **Shadertoy limitation:** Only two buffers (previous frame read-only, current frame write-only)
+2. **No intermediate storage:** Cannot store Phase 1 eligibility results for Phase 2 to read within the same frame
+3. **Temporal mismatch:** Checking neighbor eligibility reads from the wrong time step (previous frame instead of current phase)
+
+**Evidence from GPU Implementations:**
+
+LACE's Taichi implementation (also GPU-based) works correctly because it uses **explicit intermediate buffers**:
+
+```python
+# Taichi implementation (works correctly)
+def rol_step():
+    rol_compute_eligibility()       # Reads: node_degree (previous)
+                                    # Writes: node_next_eligible (current Phase 1)
+    
+    rol_compute_edges_and_degree()  # Reads: node_next_eligible (current Phase 1)
+                                    # Writes: node_next_degree (current Phase 2)
+    
+    rol_finalize_state()            # Reads: node_next_degree (current Phase 2)
+                                    # Writes: node_degree (new state)
+```
+
+Each phase has dedicated storage: `node_degree`, `node_next_eligible`, `node_next_degree`. This allows Phase 2 to read Phase 1's just-computed eligibility values within the same simulation step.
+
+**Implications:**
+
+- **Not just abstraction:** The three phases require actual separate memory/buffers in any implementation
+- **Multi-pass rendering required:** GPU shader implementations need 3 render passes with intermediate textures
+- **State packing alternative:** Could encode multiple values (eligibility + degree + previous_degree) in one buffer, but adds complexity
+- **Performance tradeoff:** The three-phase architecture trades sequential execution for correctness of the network dynamics
+
+**Comparison to Traditional CA:**
+
+Traditional cellular automata (like Game of Life) can be implemented in a single pass:
+```python
+# Single-pass GoL (works in ping-pong buffers)
+for each cell:
+    count = count_neighbors(previous_frame)
+    new_state = apply_birth_survival_rules(count)
+    write(new_state, current_frame)
+```
+
+Realm of Lace's metric-based eligibility with mutual agreement requires the intermediate eligibility computation, making it architecturally more complex than traditional CA despite being theoretically equivalent to a larger-neighborhood multi-state automaton.
+
+**Bottom Line:** While Realm of Lace is mathematically equivalent to a complex traditional CA, implementing it correctly requires architectural patterns (multiple execution phases with intermediate storage) that go beyond simple single-pass state transitions. This is why naive shader ports fail and why LACE's Python/Taichi implementations explicitly manage phase separation.
 
 ---
 
@@ -1288,6 +1356,10 @@ survival_eligibility_values_CLUSTERING_AVERAGE = []
 - Documented unfinished edge rule table infrastructure
 - Updated comparison section with honest assessment
 - Added note about equivalence to complex traditional CA
+- **Added "Why Three Phases Matter" section** explaining architectural requirements
+- Documented why shader ports fail (Shadertoy ping-pong buffer limitation)
+- Compared Taichi GPU implementation (works) vs naive shader (fails)
+- Explained intermediate storage requirements that distinguish from traditional CA
 - Maintained scientific accuracy and intellectual honesty
 
 **Version 2025-10-16 (Initial):**
