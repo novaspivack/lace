@@ -239,7 +239,7 @@ Attempts to implement this in single-pass systems (like Shadertoy's ping-pong bu
 
 **Evidence from GPU Implementations:**
 
-LACE's Taichi Demo (see taichi_advanced_render.py) the implementation (also GPU-based) works correctly because it uses **explicit intermediate buffers**:
+LACE's optional Taichi Demo (see taichi_advanced_render.py) implementation (also GPU-based) works correctly because it uses **explicit intermediate buffers**:
 
 ```python
 # Taichi implementation (works correctly)
