@@ -1,7 +1,7 @@
 # Realm of Lace Unified: Complete Technical Guide
 ## A Comprehensive Reference for Network Cellular Automata
 
-**Version:** 2025-10-16  
+**Version:** 2025-10-18 (Revised)  
 **Rule Class:** `RealmOfLaceUnified`  
 **Status:** Production
 
@@ -10,20 +10,25 @@
 ## Table of Contents
 1. [Overview](#overview)
 2. [Fundamental Concepts](#fundamental-concepts)
+   - [Network-Inspired vs. True Dynamic Topology](#important-network-inspired-vs-true-dynamic-topology)
 3. [Three-Phase Execution Model](#three-phase-execution-model)
 4. [The Eight Metrics](#the-eight-metrics)
 5. [Configuration System](#configuration-system)
 6. [Edge Formation Logic](#edge-formation-logic)
 7. [Final State Determination](#final-state-determination)
 8. [Advanced Features](#advanced-features)
+   - [Edge Rule Tables (Unimplemented)](#edge-rule-tables-infrastructure-exists-execution-not-implemented)
 9. [Example Configurations](#example-configurations)
 10. [Performance Considerations](#performance-considerations)
+11. [Comparison to Other CA Types](#comparison-to-other-ca-types)
 
 ---
 
 ## Overview
 
-**Realm of Lace Unified (ROL-U)** is a highly configurable network-based cellular automaton that treats the grid as a **dynamic graph** where both nodes (cells) and edges (connections) evolve according to network topology metrics.
+**Realm of Lace Unified (ROL-U)** is a highly configurable **network-parameterized cellular automaton** that treats the grid as a **dynamic graph** where both nodes (cells) and edges (connections) evolve according to network topology metrics.
+
+> **Important Note:** Realm of Lace is mathematically equivalent to a sophisticated multi-state cellular automaton with extended neighborhood. While edges are explicitly represented and visualized, they are **derived from node eligibility** rather than independent dynamic entities. See [Network-Inspired vs. True Dynamic Topology](#important-network-inspired-vs-true-dynamic-topology) for a detailed discussion of this distinction and the unfinished edge rule table infrastructure that could enable true dynamic topology.
 
 ### Key Properties
 
@@ -87,6 +92,50 @@ This means:
 **Network Neighbors:** Nodes connected by edges in the graph
 
 Important: A spatial neighbor is NOT automatically a network neighbor. Edges must be explicitly formed.
+
+### Important: Network-Inspired vs. True Dynamic Topology
+
+**Scientific Honesty:** Realm of Lace uses **network-inspired rules** where edges represent derived relationships based on node eligibility, NOT independent dynamic entities. This is an important distinction:
+
+**What Realm of Lace IS:**
+- **Network-Parameterized CA:** Edges are computed each step based on mutual node eligibility
+- **Sophisticated Parameterization:** 8 metrics, ranges/values, aggregation types provide rich expressiveness
+- **Network-Theoretic Framing:** Provides intuitive vocabulary (degree, betweenness, clustering)
+- **Multi-Phase Execution:** Separates eligibility calculation from edge formation from final state
+- **Mathematically Equivalent to Complex Traditional CA:** Can be expressed as a larger-neighborhood finite-state automaton
+
+**What Realm of Lace IS NOT (Yet):**
+- **True Dynamic Topology:** Edges don't gate or mask which neighbors participate in updates
+- **Independent Edge Dynamics:** Edges don't have their own state transition rules separate from node eligibility
+- **Edge-to-Edge Rules:** Edge formation/removal is always mediated through node states
+
+**The Technical Critique:**
+
+Since edges form purely based on mutual eligibility (which depends on neighbor states), they can be viewed as a **representational layer** over what is essentially a traditional CA with:
+- Extended neighborhood (5×5 to capture second-order effects)
+- Complex state space (degree values 0-26)
+- Sophisticated update rule (three phases with metric calculations)
+
+This doesn't diminish the value or sophistication of Realm of Lace, but it clarifies its position in the taxonomy of cellular automata.
+
+**Future Direction: Edge Rule Tables (Infrastructure Exists, Not Yet Implemented)**
+
+LACE includes UI and data structures for **edge rule tables** that would provide true dynamic topology:
+
+```python
+# Edge rule table format (UI exists, execution not implemented)
+Key: "(self_state, neighbor_state, connection_pattern)"
+Value: action ("add", "remove", "maintain")
+```
+
+This would enable:
+- **Edge-to-edge dynamics:** Edges evolve based on surrounding edge patterns
+- **Dynamic neighborhoods:** Only connected neighbors participate in metric calculations
+- **Independent edge logic:** Edge transitions not mediated by node eligibility
+
+The Rule Editor includes full UI for editing edge rule tables (separate from state rule tables), but no current rule implements the execution logic. This represents a significant opportunity for future development toward true network CA with dynamic topology.
+
+**Bottom Line:** Realm of Lace is a sophisticated and valuable **network-parameterized CA** with rich emergent behavior. It provides a powerful framework for exploring connectivity-based dynamics. For applications requiring truly independent topology evolution, the edge rule table infrastructure provides a clear path forward.
 
 ---
 
@@ -700,6 +749,68 @@ Both phases use Numba's `@njit` decorator for significant speedup.
 - With JIT: ~50-100 steps/second (100×100 grid)
 - Speedup: 10-20x
 
+### Edge Rule Tables (Infrastructure Exists, Execution Not Implemented)
+
+LACE includes complete UI infrastructure for **edge rule tables** that would enable true dynamic topology, but no rule currently implements the execution logic.
+
+**Concept:**
+
+Edge rule tables would allow edges to evolve based on **edge-to-edge dynamics** rather than being derived from node eligibility:
+
+```python
+# Edge rule table format (data structure and UI complete)
+Key: "(self_state, neighbor_state, connection_pattern)"
+Value: action ("add", "remove", "maintain")
+
+# Example entries:
+"(1, 1, 11100000)": "add"      # Both nodes active, 3 adjacent edges exist → add edge
+"(0, 1, 00000000)": "remove"   # One node inactive, no adjacent edges → remove edge
+"(1, 1, 11111111)": "maintain" # Both active, fully connected → maintain current state
+"default": "remove"             # Default action for unmatched patterns
+```
+
+**Key Components:**
+
+1. **self_state:** State of the first endpoint node (0-26)
+2. **neighbor_state:** State of the second endpoint node (0-26)
+3. **connection_pattern:** 8-digit binary string representing which of the 8 potential edges in the local Moore neighborhood currently exist
+4. **action:** "add" (create edge), "remove" (delete edge), or "maintain" (keep current state)
+
+**Current Status:**
+
+- ✅ **UI Complete:** Rule Editor has full "Edge Rule Table" tab with add/delete/edit functionality
+- ✅ **Data Structure:** Edge rule tables are stored in `rules.json` as `edge_rule_table` parameter
+- ✅ **Initialization:** `Rule._initialize_rule_tables()` caches edge rule tables
+- ❌ **Execution Logic:** No rule's `_compute_new_edges()` method implements table lookup
+- ❌ **Dynamic Neighborhoods:** Metric calculations don't filter by edge existence
+
+**What Implementation Would Enable:**
+
+1. **True Dynamic Topology:** Edges gate which neighbors participate in calculations
+2. **Edge-to-Edge Rules:** Edge formation based on surrounding edge patterns, not node states
+3. **Independent Edge Evolution:** Edges evolve according to their own rules
+4. **Complex Connectivity Patterns:** Enable edge-based fractals, networks, and structures
+
+**Implementation Location:**
+
+To implement edge rule tables, a rule would need to:
+
+1. Override `_compute_new_edges(neighborhood: NeighborhoodData) -> Dict[Tuple[int, int], float]`
+2. For each potential edge (self_node, neighbor_node):
+   - Get connection pattern from current edge set
+   - Look up key in `self._cached_edge_rule_table`
+   - Apply action: "add" → return 1.0, "remove" → return 0.0, "maintain" → keep previous state
+3. Optionally: Modify metric calculations to only consider connected neighbors
+
+**Why Not Implemented:**
+
+The infrastructure was created to support advanced network CA research, but focus shifted to perfecting the network-parameterized paradigm (Realm of Lace, etc.). The edge rule table feature represents a significant research direction that remains unexplored.
+
+**See Also:**
+- `LACE/lace_app.py` lines 11593-11628: Edge Rule Table UI
+- `LACE/interfaces.py` lines 321-323: `_initialize_rule_tables()` method
+- `LACE/rules.py` line 2863: `TwoDCAMasterRule` (implements state rule tables but not edge tables)
+
 ---
 
 ## Example Configurations
@@ -953,14 +1064,34 @@ use_state_coloring_edges = True
 | Edges | N/A | Explicit |
 | Interpretation | Abstract | Network structure |
 
-### vs. Other Network CA
+### vs. Other Network CA / Complex Traditional CA
 
-**Realm of Lace Unified is unique in:**
+**Realm of Lace Unified is distinguishable by:**
 - **State = Degree equivalence** (most network CA separate these)
-- **Metric configurability** (8 different metrics)
-- **Three-phase model** (most use 1 or 2 phases)
+- **Metric configurability** (8 different metrics with independent birth/survival configuration)
+- **Three-phase model** (provides clear separation of concerns)
 - **Mutual eligibility** (bilateral agreement for edges)
 - **Performance optimization** (JIT compilation, efficient algorithms)
+- **Network-theoretic parameterization** (intuitive vocabulary for rule design)
+
+**Mathematical Classification:**
+
+Realm of Lace can be expressed as a **multi-state CA with extended neighborhood**:
+- State space: {0, 1, 2, ..., 26} (degree values)
+- Effective neighborhood: 5×5 (includes neighbors-of-neighbors for metric calculations)
+- Update rule: Deterministic function of neighborhood configuration
+
+The explicit edge representation and three-phase execution provide a **useful abstraction** for designing and reasoning about connectivity-based dynamics, even though edges are ultimately derived from node eligibility rather than independent entities.
+
+**True Network CA (Not Yet Implemented in LACE):**
+
+For comparison, a true dynamic-topology network CA would have:
+- Edges that gate/mask which neighbors participate in calculations
+- Edge state transitions independent of node eligibility
+- Edge rule tables that map edge configurations to edge actions
+- Asymmetric or directed edges with independent existence
+
+LACE's edge rule table infrastructure (UI complete, execution not implemented) would enable this paradigm.
 
 ---
 
@@ -1151,7 +1282,15 @@ survival_eligibility_values_CLUSTERING_AVERAGE = []
 
 ## Version History
 
-**Version 2025-10-16:**
+**Version 2025-10-18 (Revised):**
+- Added "Network-Inspired vs. True Dynamic Topology" section
+- Clarified mathematical classification as network-parameterized CA
+- Documented unfinished edge rule table infrastructure
+- Updated comparison section with honest assessment
+- Added note about equivalence to complex traditional CA
+- Maintained scientific accuracy and intellectual honesty
+
+**Version 2025-10-16 (Initial):**
 - Complete documentation created
 - All 8 metrics documented
 - Configuration system explained
